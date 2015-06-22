@@ -33,7 +33,7 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
 
     val linksInList = for {
       list <- lists
-      entry <- list
+      entry <- list.asScala.toList
       link <- getLinksIn(entry, links)
     } yield link
     println(linksInList)
