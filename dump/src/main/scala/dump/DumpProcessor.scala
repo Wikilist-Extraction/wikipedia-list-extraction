@@ -1,5 +1,6 @@
 package dump
 
+import dataFormats.WikiLink
 import it.cnr.isti.hpc.wikipedia.article.{Link, Article}
 import scala.collection.JavaConverters._
 
@@ -26,21 +27,23 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
      } yield link
   }
 
-
   override def processArticle(article: Article): Unit = {
     val lists = article.getLists().asScala.toList
     val links = article.getLinks().asScala.toList
 
-    val linksInList = for {
+    val wikiLinks = for {
       list <- lists
       entry <- list.asScala.toList
       link <- getLinksIn(entry, links)
-    } yield link
-    println(linksInList)
+    } yield WikiLink(link.getDescription, link.getId)
   }
 }
 
 class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
 
-  override def processArticle(article: Article): Unit = ???
+  override def processArticle(article: Article): Unit = {
+    val tables = article.getTables.asScala.toList
+    tables foreach { table =>
+    }
+  }
 }
