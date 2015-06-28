@@ -6,18 +6,18 @@ import scala.collection.JavaConverters._
 
 
 trait EntryCleaner {
-  def filterConvertTemplate(literal: Literal): Literal = {
-    def extractTemplateValue(raw: String): String = {
-      // execute regex via match and return matched groups
-      val regexGroups = """^TEMPLATE[\w+, value:(.+),?.*]""".r
+  def extractTemplateValue(raw: String): String = {
+    // execute regex via match and return matched groups
+    val regexGroups = """^TEMPLATE\[\w+, ([^,]+),?.*\]$""".r
 
-      raw match {
-        case regexGroups(group) => group
-        case _ => raw
-      }
-
+    raw match {
+      case regexGroups(wrappedValue) => wrappedValue
+      case _ => raw
     }
 
+  }
+
+  def filterConvertTemplate(literal: Literal): Literal = {
     Literal(extractTemplateValue(literal.raw), literal.dataType)
   }
 }
@@ -25,11 +25,11 @@ trait EntryCleaner {
 trait DumpProcessor {
   val articleList: List[Article]
 
-  def startProcessing(): List[WikiPage] = {
+  def startProcessing(): List[Option[WikiPage]] = {
     articleList map processArticle
   }
 
-  def processArticle(article: Article): WikiPage
+  def processArticle(article: Article): Option[WikiPage]
 
   def getCategoriesOf(article: Article): List[WikiLink] = {
     article.getCategories.asScala.toList.map { link =>
