@@ -9,7 +9,7 @@ object MyBuild extends Build {
 
   val scalaVersion = "2.11.6"
 
-  scalacOptions += "-target:jvm-1."
+  scalacOptions += "-target:jvm-1.8"
 
   lazy val root: Project = project.in(file("."))
 }
