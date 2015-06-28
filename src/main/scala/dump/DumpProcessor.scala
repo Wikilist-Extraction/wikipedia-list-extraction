@@ -4,9 +4,6 @@ import dataFormats.{WikiPage, WikiTable, WikiList, WikiLink, Literal}
 import it.cnr.isti.hpc.wikipedia.article.{Link, Article, Template}
 import scala.collection.JavaConverters._
 
-/**
- * Created by nico on 19/06/15.
- */
 
 trait EntryCleaner {
   def filterConvertTemplate(literal: Literal): Literal = {
@@ -82,6 +79,7 @@ class TableProcessor(val articleList: List[Article]) extends DumpProcessor with 
   override def processArticle(article: Article): Option[WikiTable] = {
     val tables = article.getTables.asScala.toList
     tables foreach { table =>
+//      table.
     }
     Some(WikiTable(List(), article.getTitle, article.getSummary, getCategoriesOf(article)))
   }
