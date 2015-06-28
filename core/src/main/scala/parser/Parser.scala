@@ -1,5 +1,6 @@
 package parser
 
+import dataFormats.WikiTable
 import it.cnr.isti.hpc.wikipedia.article.{Link, Table}
 
 /**
@@ -15,7 +16,9 @@ class Parser(
 
   def parseLists(lists: List[List[String]]): List[List[String]] = { lists }
 
-  def parseTables(tables: List[Table]): List[Table] = { tables }
+  def parseTable(table : Table): WikiTable = {
+    null;
+  }
     // loop tables
     // parse each
     // add to new list
