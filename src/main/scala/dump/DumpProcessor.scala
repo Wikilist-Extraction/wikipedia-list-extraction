@@ -2,12 +2,25 @@ package dump
 
 import dataFormats._
 import it.cnr.isti.hpc.wikipedia.article.{Table, Link, Article}
-import scala.collection.JavaConverters._
 
+import dataFormats.{WikiPage, WikiTable, WikiListPage, WikiLink, Literal}
 import implicits.ConversionImplicits._
-/**
- * Created by nico on 19/06/15.
- */
+
+trait EntryCleaner {
+  def extractTemplateValue(raw: String): String = {
+    // execute regex via match and return matched groups
+    val regexGroups = """^TEMPLATE\[\w+, ([^,]+),?.*\]$""".r
+
+    raw match {
+      case regexGroups(wrappedValue) => wrappedValue
+      case _ => raw
+    }
+  }
+
+  def filterConvertTemplate(literal: Literal): Literal = {
+    Literal(extractTemplateValue(literal.raw), literal.dataType)
+  }
+}
 
 trait DumpProcessor {
   val articleList: List[Article]
@@ -26,16 +39,15 @@ trait DumpProcessor {
       WikiLink(link.getDescription, link.getId)
     }
   }
-
 }
 
 class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
 
   def getLinksIn(entry: String, links: List[Link]): List[WikiLink] = {
-     for {
-       link <- links
-       if entry contains link.getDescription
-     } yield WikiLink(link.getDescription, link.getId)
+    for {
+      link <- links
+      if entry contains link.getDescription
+    } yield WikiLink(link.getDescription, link.getId)
   }
 
   def entriesHaveOneLinkOnly(entries: List[List[WikiLink]]): Boolean = {
@@ -52,18 +64,20 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
     } yield getLinksIn(entry, links)
 
     if (entriesHaveOneLinkOnly(wikiLinksForEntry)) {
-      Some(WikiListPage(
+      val wikiList = WikiListPage(
         wikiLinksForEntry.flatten,
         article.getTitle,
         article.getSummary,
-        getCategoriesOf(article)))
+        getCategoriesOf(article))
+
+      Some(wikiList)
     } else {
       None
     }
   }
 }
 
-class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
+class TableProcessor(val articleList: List[Article]) extends DumpProcessor with EntryCleaner {
 
   def getEntry(rawCell: String): Entry = {
     // TODO: decide if it is a Link or Literal and filter out templates
