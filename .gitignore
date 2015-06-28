@@ -86,3 +86,7 @@ hs_err_pid*
 # add library jars
 !lib/*
 
+#####=== Project Specific ===#####
+
+# Data Directories #
+data/
