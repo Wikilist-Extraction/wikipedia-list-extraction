@@ -24,6 +24,10 @@ case class WikiTable(
                       categories: List[WikiLink]) extends WikiPage
 
 
+case class WikiListEntry(
+                        text: String,
+                        links: List[WikiLink])
+
 case class WikiLink(label: String, uri: String)
 
 case class TableRow()

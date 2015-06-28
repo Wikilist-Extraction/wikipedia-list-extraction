@@ -16,7 +16,7 @@ trait DumpProcessor {
 
   def processArticle(article: Article): WikiPage
 
-  def getCategoriesOf(article: Article): List[WikiLink]= {
+  def getCategoriesOf(article: Article): List[WikiLink] = {
     article.getCategories.asScala.toList.map { link =>
       WikiLink(link.getDescription, link.getId)
     }
@@ -26,25 +26,35 @@ trait DumpProcessor {
 
 class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
 
-  def getLinksIn(entry: String, links: List[Link]): List[Link] = {
+  def getLinksIn(entry: String, links: List[Link]): List[WikiLink] = {
      for {
        link <- links
        if entry contains link.getDescription
-     } yield link
+     } yield WikiLink(link.getDescription, link.getId)
   }
 
-  override def processArticle(article: Article): WikiList = {
+  def entriesHaveOneLinkOnly(entries: List[List[WikiLink]]): Boolean = {
+    entries.forall { _.length == 1 }
+  }
+
+  override def processArticle(article: Article): Option[WikiList] = {
     val lists = article.getLists.asScala.toList
     val links = article.getLinks.asScala.toList
 
-
-    val wikiLinks = for {
+    val wikiLinksForEntry = for {
       list <- lists
       entry <- list.asScala.toList
-      link <- getLinksIn(entry, links)
-    } yield WikiLink(link.getDescription, link.getId)
+    } yield getLinksIn(entry, links)
 
-    WikiList(wikiLinks, article.getTitle, article.getSummary, getCategoriesOf(article))
+    if (entriesHaveOneLinkOnly(wikiLinksForEntry)) {
+      Some(WikiList(
+        wikiLinksForEntry.flatten,
+        article.getTitle,
+        article.getSummary,
+        getCategoriesOf(article)))
+    } else {
+      None
+    }
   }
 }
 

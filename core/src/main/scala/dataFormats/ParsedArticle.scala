@@ -10,21 +10,18 @@ import scala.collection.JavaConverters._
 
 object ParsedArticle {
 
-
   def parseFromArticle(article: Article): ParsedArticle = {
-
     val parser = new Parser(article.getLinks.asScala.toList, article.getExternalLinks.asScala.toList)
-
-    val lists = for(l <- article.getLists.asScala.toList) yield l.asScala.toList
 
     new ParsedArticle(
       article.getTitle,
       article.getSections.asScala.toList,
       article.getSummary,
-      parser.parseLists(lists),
+      parser.parseLists(article.getLists.asScala.toList.map(l => l.asScala.toList)),
       parser.parseTables(article.getTables.asScala.toList)
     )
   }
+
 }
 
 class ParsedArticle(
