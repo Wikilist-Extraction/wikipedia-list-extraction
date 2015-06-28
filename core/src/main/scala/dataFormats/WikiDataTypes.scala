@@ -1,9 +1,5 @@
 package dataFormats
 
-/**
- * Created by nico on 19/06/15.
- */
-
 trait WikiPage {
   val title: String
   val wikiAbstract: String
@@ -24,11 +20,9 @@ case class WikiTable(
                       categories: List[WikiLink]) extends WikiPage
 
 
-case class WikiListEntry(
-                        text: String,
-                        links: List[WikiLink])
+trait Entry
+case class WikiLink(label: String, uri: String) extends Entry
+case class Literal(raw: String, dataType: String) extends Entry
 
-case class WikiLink(label: String, uri: String)
-
-case class TableRow()
-case class TableCell(entry: String)
+case class TableRow(cells : List[TableCell])
+case class TableCell(entry : Entry)
