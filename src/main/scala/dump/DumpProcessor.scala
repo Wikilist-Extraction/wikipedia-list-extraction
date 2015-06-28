@@ -1,36 +1,53 @@
 package dump
 
-import dataFormats.{WikiPage, WikiTable, WikiList, WikiLink}
-import it.cnr.isti.hpc.wikipedia.article.{Link, Article}
+import dataFormats.{WikiPage, WikiTable, WikiList, WikiLink, Literal}
+import it.cnr.isti.hpc.wikipedia.article.{Link, Article, Template}
 import scala.collection.JavaConverters._
 
 /**
  * Created by nico on 19/06/15.
  */
+
+trait EntryCleaner {
+  def filterConvertTemplate(literal: Literal): Literal = {
+    def extractTemplateValue(raw: String): String = {
+      // execute regex via match and return matched groups
+      val regexGroups = """^TEMPLATE[\w+, value:(.+),?.*]""".r
+
+      raw match {
+        case regexGroups(group) => group
+        case _ => raw
+      }
+
+    }
+
+    Literal(extractTemplateValue(literal.raw), literal.dataType)
+  }
+}
+
 trait DumpProcessor {
   val articleList: List[Article]
 
-  def startProcessing(): List[Option[WikiPage]] = {
+  def startProcessing(): List[WikiPage] = {
     articleList map processArticle
   }
 
-  def processArticle(article: Article): Option[WikiPage]
+  def processArticle(article: Article): WikiPage
 
   def getCategoriesOf(article: Article): List[WikiLink] = {
     article.getCategories.asScala.toList.map { link =>
       WikiLink(link.getDescription, link.getId)
     }
   }
-
 }
 
 class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
 
   def getLinksIn(entry: String, links: List[Link]): List[WikiLink] = {
-     for {
-       link <- links
-       if entry contains link.getDescription
-     } yield WikiLink(link.getDescription, link.getId)
+    for {
+      link <- links
+      if entry contains link.getDescription
+    } yield WikiLink(link.getDescription, link.getId)
   }
 
   def entriesHaveOneLinkOnly(entries: List[List[WikiLink]]): Boolean = {
@@ -47,18 +64,20 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
     } yield getLinksIn(entry, links)
 
     if (entriesHaveOneLinkOnly(wikiLinksForEntry)) {
-      Some(WikiList(
+      val wikiList = WikiList(
         wikiLinksForEntry.flatten,
         article.getTitle,
         article.getSummary,
-        getCategoriesOf(article)))
+        getCategoriesOf(article))
+
+      Some(wikiList)
     } else {
       None
     }
   }
 }
 
-class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
+class TableProcessor(val articleList: List[Article]) extends DumpProcessor with EntryCleaner {
 
   override def processArticle(article: Article): Option[WikiTable] = {
     val tables = article.getTables.asScala.toList
