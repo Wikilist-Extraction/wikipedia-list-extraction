@@ -1,6 +1,6 @@
 package parser
 
-import it.cnr.isti.hpc.wikipedia.article.Link
+import it.cnr.isti.hpc.wikipedia.article.{Link, Table}
 
 /**
  * Created by sven on 28/06/15.
@@ -15,7 +15,7 @@ class Parser(
 
   def parseLists(lists: List[List[String]]): List[List[String]] = { lists }
 
-  def parseTables(tables: List[List[String]]): List[List[String]] = { tables }
+  def parseTables(tables: List[Table]): List[Table] = { tables }
     // loop tables
     // parse each
     // add to new list
