@@ -10,11 +10,11 @@ import scala.collection.JavaConverters._
 trait DumpProcessor {
   val articleList: List[Article]
 
-  def startProcessing(): List[WikiPage] = {
+  def startProcessing(): List[Option[WikiPage]] = {
     articleList map processArticle
   }
 
-  def processArticle(article: Article): WikiPage
+  def processArticle(article: Article): Option[WikiPage]
 
   def getCategoriesOf(article: Article): List[WikiLink] = {
     article.getCategories.asScala.toList.map { link =>
@@ -60,10 +60,10 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
 
 class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
 
-  override def processArticle(article: Article): WikiTable = {
+  override def processArticle(article: Article): Option[WikiTable] = {
     val tables = article.getTables.asScala.toList
     tables foreach { table =>
     }
-    WikiTable(List(), article.getTitle, article.getSummary, getCategoriesOf(article))
+    Some(WikiTable(List(), article.getTitle, article.getSummary, getCategoriesOf(article)))
   }
 }

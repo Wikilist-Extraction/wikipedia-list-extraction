@@ -9,17 +9,5 @@ object MyBuild extends Build {
 
   val scalaVersion = "2.11.6"
 
-  lazy val submoduleSettings = Seq(
-    // mega hacky :)
-    unmanagedBase := (root.base \ "lib").get(0)
-  )
-
-  lazy val root: Project = project.in(file(".")).aggregate(dump, core)
-
-  lazy val dump = project
-    .settings(submoduleSettings: _*)
-    .dependsOn(core)
-
-  lazy val core = project
-    .settings(submoduleSettings: _*)
+  lazy val root: Project = project.in(file("."))
 }

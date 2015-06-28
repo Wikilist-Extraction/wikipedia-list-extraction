@@ -17,12 +17,12 @@ object Main {
     // extraction
 
 
-//    val listExtractor = new ListProcessor(articleList)
-//    val tableExtractor = new TableProcessor(articleList)
-//
-//    val lists = listExtractor.startProcessing()
-//    val tables = tableExtractor.startProcessing()
-//
-//    println(lists)
+    val listExtractor = new ListProcessor(articleList)
+    val tableExtractor = new TableProcessor(articleList)
+
+    val lists = listExtractor.startProcessing()
+    val tables = tableExtractor.startProcessing()
+
+    println(lists)
   }
 }
