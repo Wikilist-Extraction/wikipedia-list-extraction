@@ -16,7 +16,7 @@ trait DumpProcessor {
 
   def processArticle(article: Article): WikiPage
 
-  def getCategoriesoOf(article: Article): List[WikiLink]= {
+  def getCategoriesOf(article: Article): List[WikiLink]= {
     article.getCategories.asScala.toList.map { link =>
       WikiLink(link.getDescription, link.getId)
     }
@@ -44,7 +44,7 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
       link <- getLinksIn(entry, links)
     } yield WikiLink(link.getDescription, link.getId)
 
-    WikiList(wikiLinks, article.getTitle, article.getSummary, getCategoriesoOf(article))
+    WikiList(wikiLinks, article.getTitle, article.getSummary, getCategoriesOf(article))
   }
 }
 
@@ -54,6 +54,6 @@ class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
     val tables = article.getTables.asScala.toList
     tables foreach { table =>
     }
-    WikiTable(List(), article.getTitle, article.getSummary, getCategoriesoOf(article))
+    WikiTable(List(), article.getTitle, article.getSummary, getCategoriesOf(article))
   }
 }
