@@ -3,10 +3,12 @@ package dump
 import dataFormats.{WikiPage, WikiTable, WikiList, WikiLink}
 import it.cnr.isti.hpc.wikipedia.article.{Link, Article}
 import scala.collection.JavaConverters._
-
 /**
  * Created by nico on 19/06/15.
  */
+
+
+
 trait DumpProcessor {
   val articleList: List[Article]
 
@@ -63,6 +65,7 @@ class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
   override def processArticle(article: Article): Option[WikiTable] = {
     val tables = article.getTables.asScala.toList
     tables foreach { table =>
+//      table.
     }
     Some(WikiTable(List(), article.getTitle, article.getSummary, getCategoriesOf(article)))
   }
