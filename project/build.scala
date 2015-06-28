@@ -10,6 +10,7 @@ object MyBuild extends Build {
   val scalaVersion = "2.11.6"
 
   lazy val submoduleSettings = Seq(
+    // mega hacky :)
     unmanagedBase := (root.base \ "lib").get(0)
   )
 

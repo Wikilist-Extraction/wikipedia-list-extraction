@@ -1,6 +1,6 @@
 package dump
 
-import dataFormats.WikiLink
+import dataFormats.{WikiPage, WikiTable, WikiList, WikiLink}
 import it.cnr.isti.hpc.wikipedia.article.{Link, Article}
 import scala.collection.JavaConverters._
 
@@ -10,11 +10,17 @@ import scala.collection.JavaConverters._
 trait DumpProcessor {
   val articleList: List[Article]
 
-  def startProcessing() = {
-    articleList foreach processArticle
+  def startProcessing(): List[WikiPage] = {
+    articleList map processArticle
   }
 
-  def processArticle(article: Article)
+  def processArticle(article: Article): WikiPage
+
+  def getCategoriesoOf(article: Article): List[WikiLink]= {
+    article.getCategories.asScala.toList.map { link =>
+      WikiLink(link.getDescription, link.getId)
+    }
+  }
 
 }
 
@@ -27,23 +33,27 @@ class ListProcessor(val articleList: List[Article]) extends DumpProcessor {
      } yield link
   }
 
-  override def processArticle(article: Article): Unit = {
-    val lists = article.getLists().asScala.toList
-    val links = article.getLinks().asScala.toList
+  override def processArticle(article: Article): WikiList = {
+    val lists = article.getLists.asScala.toList
+    val links = article.getLinks.asScala.toList
+
 
     val wikiLinks = for {
       list <- lists
       entry <- list.asScala.toList
       link <- getLinksIn(entry, links)
     } yield WikiLink(link.getDescription, link.getId)
+
+    WikiList(wikiLinks, article.getTitle, article.getSummary, getCategoriesoOf(article))
   }
 }
 
 class TableProcessor(val articleList: List[Article]) extends DumpProcessor {
 
-  override def processArticle(article: Article): Unit = {
+  override def processArticle(article: Article): WikiTable = {
     val tables = article.getTables.asScala.toList
     tables foreach { table =>
     }
+    WikiTable(List(), article.getTitle, article.getSummary, getCategoriesoOf(article))
   }
 }

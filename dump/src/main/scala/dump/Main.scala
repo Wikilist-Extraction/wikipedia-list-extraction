@@ -15,7 +15,12 @@ object Main {
 
     val articleList: List[Article] = reader.getArticlesList.asScala.toList
 
-    new ListProcessor(articleList).startProcessing()
-    new TableProcessor(articleList).startProcessing()
+    val listExtractor = new ListProcessor(articleList)
+    val tableExtractor = new TableProcessor(articleList)
+
+    val lists = listExtractor.startProcessing()
+    val tables = tableExtractor.startProcessing()
+
+    println(lists)
   }
 }
