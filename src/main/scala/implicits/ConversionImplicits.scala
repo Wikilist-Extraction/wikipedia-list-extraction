@@ -1,8 +1,20 @@
 package implicits
 
+import scala.collection.JavaConverters._
+import scala.language.implicitConversions
+
+
 /**
- * Created by nico on 29/06/15.
+ * Implicit conversions from java lists to scala lists
  */
-class ConversionImplicits {
+object ConversionImplicits {
+
+  implicit def asScalaList[T](list: java.util.List[T]): List[T] = {
+    list.asScala.toList
+  }
+
+  implicit def asScalaListOfLists[T](list: java.util.List[java.util.List[T]]): List[List[T]] = {
+    list.asScala.toList map { _.asScala.toList }
+  }
 
 }

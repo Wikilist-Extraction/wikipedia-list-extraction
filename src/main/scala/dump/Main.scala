@@ -24,5 +24,6 @@ object Main {
     val tables = tableExtractor.startProcessing()
 
     println(lists)
+    println(tables)
   }
 }
