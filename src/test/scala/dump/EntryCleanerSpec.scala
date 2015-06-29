@@ -25,6 +25,6 @@ class EntryCleanerSpec extends FlatSpec {
     "Extracting a Litaral" should "return a Literal" in {
         val literal = Literal("TEMPLATE[name, value]", "string")
         val computedLiteral = Literal("value", "string")
-        assert(entry.filterConvertTemplate(literal) == computedLiteral)
+        assert(entry.extractTemplateFrom(literal) == computedLiteral)
     }
 }
