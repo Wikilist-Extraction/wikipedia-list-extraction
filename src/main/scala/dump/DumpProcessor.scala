@@ -26,6 +26,7 @@ trait DumpProcessor {
   val articleList: List[Article]
 
   def startProcessing(): List[WikiPage] = {
+    // or articleList.map(processArticle).flatten
     articleList
       .map(processArticle)
       .filter(_.isDefined)
@@ -85,7 +86,7 @@ class TableProcessor(val articleList: List[Article]) extends DumpProcessor with 
   }
 
   def getTableCells(rawCells: List[String]): List[TableCell] = {
-    rawCells map ( cell => TableCell(getEntry(cell)) )
+    rawCells map { cell => TableCell(getEntry(cell)) }
   }
 
   def getTableRows(rawTable: List[List[String]]): List[TableRow] = {
@@ -94,6 +95,7 @@ class TableProcessor(val articleList: List[Article]) extends DumpProcessor with 
 
   def getTable(table: Table): WikiTable = {
     val rawTable = table.getTable
+    // TODO: process header
     val header = rawTable.head
     val rows = getTableRows(rawTable.tail)
     WikiTable(header, rows, table.getName)
