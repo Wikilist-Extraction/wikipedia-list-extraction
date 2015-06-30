@@ -1,15 +1,12 @@
 package tableExtraction;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 public class TableRater {
 
     private final static int UNIQUE_FACTOR = 10;
     private final static int LEFT_FACTOR = 10;
     private final static int COLUMN_MATCH_FACTOR = 3;
 
+    /*
     public int[] rateColumnMatches(RDFTable table) {
         int columnCount = table.getColumnCount();
         int[] matchedColumns = new int[columnCount];
@@ -75,4 +72,5 @@ public class TableRater {
     private int[] rateColumnRelationships() {
         return null;
     }
+    */
 }

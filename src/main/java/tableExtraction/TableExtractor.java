@@ -1,7 +1,8 @@
 package tableExtraction;
 
-import dataFormats.WikiTable;
+import dataFormats.WikiLink;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,14 +10,19 @@ public class TableExtractor {
 
     private String[][] tableAsString;
 
-    public List<String> extractTableEntities(List<RDFTable> wikiTables) {
+    public List<WikiLink> extractTableEntities(List<RDFTable> wikiTables) {
+        List<WikiLink> links = new ArrayList<>();
+        for (RDFTable table : wikiTables) {
+            links.addAll(table.getColumnAsLinks(0));
+        }
+        return links;
+    }
+
+    private List<WikiLink> getSimpleEntities(RDFTable table) {
         return null;
     }
 
-    public List<String> extractTableEntities(WikiTable wikiTable) {
-
-        RDFTable table = new RDFTable(wikiTable);
-
+    /*private List<String> extractTableEntities(RDFTable table) {
         int[] rating = new int[table.getColumnCount()];
         TableRater rater = new TableRater();
         int[] uniquenessValues =  rater.getUniquenessValues(table);
@@ -29,7 +35,7 @@ public class TableExtractor {
 
         int maxColumn = getMax(rating);
         return table.getColumnAsRDF(maxColumn);
-    }
+    }*/
 
 
     private void printStringTable(String[][] table) {

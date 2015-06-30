@@ -1,11 +1,7 @@
 package tableExtraction;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 public class PredicateMatcher {
-
+    /*
     public int countMatchingColumns(int columnIndex, RDFTable table) {
         int totalMatchingColumns = 0;
         int rowCount = table.getRowCount();
@@ -35,7 +31,7 @@ public class PredicateMatcher {
                     System.out.println("with percantage: " + percentage);
                 }
             }
-        }*/
+        }
         //for (int i = 1; i < table.getColumnCount(); i++) {
         //    int matchedCount = matchColumns(0, i, table);
         //}
@@ -108,4 +104,5 @@ public class PredicateMatcher {
         System.out.println("Finding predicates between: " + name + " and " + literal);
         return predicates;
     }
+    */
 }

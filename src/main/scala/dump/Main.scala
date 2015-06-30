@@ -23,13 +23,6 @@ object Main {
 
     val extractor = new  TableExtractor()
 
-    val tableEntities = tablePages.map { page =>
-      val tables = page.asInstanceOf[WikiTablePage].tables map { table =>
-        val rows = table.
-      }
-      new RDFTable()
-    }
-
     println(listPages)
     println(tablePages)
   }

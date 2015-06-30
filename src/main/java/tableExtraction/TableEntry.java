@@ -54,10 +54,17 @@ public class TableEntry {
         return title;
     }*/
 
-    private boolean checkDbpediaEntity() {
+    public boolean isLink() {
+        return isLink;
+    }
+
+    public String getLink() {
+        return link_;
+    }
+
+    public boolean isDbpediaEntity() {
         QueryWrapper wrapper = new QueryWrapper();
-        isDbpediaEntity = wrapper.isLiteralEntityQueryString()
-        SPARQLHelper helper = new SPARQLHelper();
-        return helper.isDbpediaEntity(this);
+        isDbpediaEntity = wrapper.isLiteralEntityQueryString(this.rawContent_).hasNext();
+        return isDbpediaEntity;
     }
 }
