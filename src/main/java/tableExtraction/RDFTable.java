@@ -65,7 +65,7 @@ public class RDFTable {
 
         for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < colCount; j++) {
-                textArray[i][j] = table.get(i)[j].getTextContent();
+                textArray[i][j] = table.get(i)[j].getRawContent();
             }
         }
 

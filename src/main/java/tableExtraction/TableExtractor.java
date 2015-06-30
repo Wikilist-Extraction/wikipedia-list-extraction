@@ -9,7 +9,7 @@ public class TableExtractor {
 
     private String[][] tableAsString;
 
-    public List<String> extractTableEntities(List<WikiTable> wikiTables) {
+    public List<String> extractTableEntities(List<RDFTable> wikiTables) {
         return null;
     }
 

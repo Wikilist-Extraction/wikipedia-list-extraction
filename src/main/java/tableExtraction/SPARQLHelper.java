@@ -1,16 +1,9 @@
 package tableExtraction;
+/*
 
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
-import org.apache.commons.lang3.StringUtils;
-import org.openjena.riot.WebContent;
-
-import java.util.LinkedList;
 import java.util.List;
 
 public class SPARQLHelper {
-
-
     //TODO merge functions and find generalisation for query
 
     public String getRedirectedStringIfNeeded(TableEntry entry) {
@@ -207,3 +200,4 @@ public class SPARQLHelper {
     }
 
 }
+*/

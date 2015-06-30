@@ -1,21 +1,31 @@
 package tableExtraction;
 
+import fragmentsWrapper.QueryWrapper;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class TableEntry {
     private boolean isLink;
-    private String textContent;
+    private String rawContent_;
     private boolean isDbpediaEntity;
+    private String link_;
+
 
 
     TableEntry(String link, String raw) {
-
+        isLink = true;
+        link_ = link;
+        rawContent_ = raw;
     }
 
-    public String getTextContent() {
-        return textContent;
+    TableEntry(String raw) {
+        isLink = false;
+        rawContent_ = raw;
+    }
+    public String getRawContent() {
+        return rawContent_;
     }
 
     private String stripTextBetweenBrackets(String text) {
@@ -45,6 +55,8 @@ public class TableEntry {
     }*/
 
     private boolean checkDbpediaEntity() {
+        QueryWrapper wrapper = new QueryWrapper();
+        isDbpediaEntity = wrapper.isLiteralEntityQueryString()
         SPARQLHelper helper = new SPARQLHelper();
         return helper.isDbpediaEntity(this);
     }
