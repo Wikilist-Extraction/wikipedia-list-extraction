@@ -6,7 +6,7 @@ import it.cnr.isti.hpc.wikipedia.article.Article
 trait DumpProcessor {
   val articleList: List[Article]
 
-  def startProcessing(): List[WikiPage] = {
+  def startProcessing() = {
     // or articleList.map(processArticle).flatten
     articleList
       .map(processArticle)

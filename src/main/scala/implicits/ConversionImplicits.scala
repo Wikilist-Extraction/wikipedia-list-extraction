@@ -17,4 +17,8 @@ object ConversionImplicits {
     list.asScala.toList map { _.asScala.toList }
   }
 
+  implicit def asJavaList[T](list: List[T]):  java.util.List[T] = {
+    list.asJava
+  }
+
 }
