@@ -22,7 +22,7 @@ public class TableExtractor {
         return null;
     }
 
-    /*private List<String> extractTableEntities(RDFTable table) {
+    private List<WikiLink> extractTableEntities(RDFTable table) {
         int[] rating = new int[table.getColumnCount()];
         TableRater rater = new TableRater();
         int[] uniquenessValues =  rater.getUniquenessValues(table);
@@ -34,8 +34,8 @@ public class TableExtractor {
         }
 
         int maxColumn = getMax(rating);
-        return table.getColumnAsRDF(maxColumn);
-    }*/
+        return table.getColumnAsLinks(maxColumn);
+    }
 
 
     private void printStringTable(String[][] table) {

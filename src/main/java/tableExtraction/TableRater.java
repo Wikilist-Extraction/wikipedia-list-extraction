@@ -1,34 +1,15 @@
 package tableExtraction;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class TableRater {
 
     private final static int UNIQUE_FACTOR = 10;
     private final static int LEFT_FACTOR = 10;
     private final static int COLUMN_MATCH_FACTOR = 3;
 
-    /*
-    public int[] rateColumnMatches(RDFTable table) {
-        int columnCount = table.getColumnCount();
-        int[] matchedColumns = new int[columnCount];
-        PredicateMatcher matcher = new PredicateMatcher();
-
-        for (int i = 0; i < columnCount; i++) {
-            matchedColumns[i] = matcher.countMatchingColumns(i, table) * COLUMN_MATCH_FACTOR;
-        }
-
-        return matchedColumns;
-    }
-
-    public int[] rateLeftness(RDFTable table) {
-        int columnCount = table.getColumnCount();
-        int[] leftValues = new int[columnCount];
-
-        for (int i = 0; i < columnCount; i++) {
-            leftValues[i] = (int) Math.floor(LEFT_FACTOR - i * (LEFT_FACTOR / columnCount));
-        }
-
-        return leftValues;
-    }
 
     public int[] getUniquenessValues(RDFTable table) {
         boolean[] unique = testColumnsUnique(table);
@@ -57,6 +38,30 @@ public class TableRater {
         return (column.size() == columnWithoutDuplicates.size());
     }
 
+    public int[] rateLeftness(RDFTable table) {
+        int columnCount = table.getColumnCount();
+        int[] leftValues = new int[columnCount];
+
+        for (int i = 0; i < columnCount; i++) {
+            leftValues[i] = (int) Math.floor(LEFT_FACTOR - i * (LEFT_FACTOR / columnCount));
+        }
+        return leftValues;
+    }
+
+
+    public int[] rateColumnMatches(RDFTable table) {
+        int columnCount = table.getColumnCount();
+        int[] matchedColumns = new int[columnCount];
+        PredicateMatcher matcher = new PredicateMatcher();
+
+        for (int i = 0; i < columnCount; i++) {
+            matchedColumns[i] = matcher.countMatchingColumns(i, table) * COLUMN_MATCH_FACTOR;
+        }
+
+        return matchedColumns;
+    }
+
+
     private int findMaxColumn(int[] rating) {
         int max = 0;
         int maxPosition = 0;
@@ -72,5 +77,4 @@ public class TableRater {
     private int[] rateColumnRelationships() {
         return null;
     }
-    */
 }
