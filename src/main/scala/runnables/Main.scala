@@ -1,11 +1,11 @@
-package dump
+package runnables
 
 import dataFormats.WikiTablePage
+import dump.{ListProcessor, RecordReaderWrapper, TableProcessor}
 import it.cnr.isti.hpc.wikipedia.article.Article
 import tableExtraction.{RDFTable, TableExtractor}
 
 import scala.collection.JavaConverters._
-import implicits.ConversionImplicits._
 
 object Main {
   def main(args: Array[String]) = {

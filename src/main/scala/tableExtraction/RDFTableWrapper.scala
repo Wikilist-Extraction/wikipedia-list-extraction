@@ -1,6 +1,6 @@
 package tableExtraction
 
-import dataFormats.{WikiTable, Literal, WikiLink, WikiTablePage}
+import dataFormats._
 import implicits.ConversionImplicits._
 
 /**
@@ -28,7 +28,8 @@ class RDFTableWrapper(page: WikiTablePage) {
     page.tables map createJavaRDFTable
   }
 
-  def getResuls() = {
+  def getResult(): WikiListPage = {
     val links = tableExtractor.extractTableEntities(rdfTables)
+    WikiListPage(links, page.title, page.wikiAbstract, page.categories)
   }
 }
