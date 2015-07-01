@@ -2,7 +2,7 @@ package dump
 
 import dataFormats.WikiTablePage
 import it.cnr.isti.hpc.wikipedia.article.Article
-import tableExtraction.{RDFTable, TableExtractor}
+import tableExtraction.{RDFTableWrapper, RDFTable, TableExtractor}
 
 import scala.collection.JavaConverters._
 import implicits.ConversionImplicits._
@@ -20,8 +20,13 @@ object Main {
     val listPages = listExtractor.startProcessing()
     val tablePages = tableExtractor.startProcessing()
 
-
     val extractor = new  TableExtractor()
+
+    tablePages.foreach(page => {
+      val tablePage = new RDFTableWrapper(page.asInstanceOf[WikiTablePage])
+      val rdfTables = tablePage.convertTables()
+      extractor.extractTableEntities(rdfTables)
+    })
 
     println(listPages)
     println(tablePages)
