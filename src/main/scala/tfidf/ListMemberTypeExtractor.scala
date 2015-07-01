@@ -33,7 +33,7 @@ object ListMemberTypeExtractor {
 class ListMemberTypeExtractor extends JenaFragmentWrapper {
   import ListMemberTypeExtractor._
 
-  val fragmentServerUrl: String = "http://data.linkeddatafragments.org/dbpedia"
+  val fragmentServerUrl: String = "http://data.linkeddatafragments.org/dbpedia2014"
 
   //  val list = Observable.from(linksList)
 

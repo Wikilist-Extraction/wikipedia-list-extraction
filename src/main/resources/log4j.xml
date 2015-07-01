@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration>
+    <appender name="CA" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!--&lt;!&ndash;If you want to enable logging for the application but wish to disable logging for a specific package then use this, where org.jboss is the package for which you wish to disable logging.&ndash;&gt;-->
+    <!--<category name="org.jboss">-->
+        <!--<priority value="off"/>-->
+    <!--</category>-->
+
+    <root>
+        <priority value="off"/> <!--Notice this disables all logging-->
+        <appender-ref ref="CA"/>
+    </root>
+
+</log4j:configuration>
