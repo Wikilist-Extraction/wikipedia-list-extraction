@@ -66,12 +66,14 @@ public class QueryWrapper {
         return executeQuery(queryString);
     }
 
-    public ResultSet isLiteralEntityQueryString(String name) {
+    public boolean isLiteralEntityQueryString(String name) {
+        name = name.replace(" ", "_");
         String queryString = "SELECT * {{" +
             "SELECT ?predicate { <http://dbpedia.org/resource/" + name + "> ?predicate ?object. }}" +
             "UNION { SELECT ?subject " +
             "{ ?subject ?predicate <http://dbpedia.org/resource/" + name +">}} }";
-        return executeQuery(queryString);
+        ResultSet predicates = executeQuery(queryString);
+        return predicates.hasNext();
     }
 
 }
