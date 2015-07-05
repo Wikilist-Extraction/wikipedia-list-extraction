@@ -6,7 +6,9 @@ scalaVersion := "2.11.6"
 
 scalacOptions += "-target:jvm-1.8"
 
-logLevel := sbt.Level.Error
+logLevel := sbt.Level.Info
+
+testOptions in Test += Tests.Argument("-oD")
 
 resolvers += Resolver.mavenLocal
 
