@@ -11,7 +11,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Created by nico on 01/07/15.
  */
+object JenaWrapper {
+
+  val DBpediaPrefixes = PrefixMapping.Factory.create()
+    .setNsPrefixes( PrefixMapping.Standard )
+    .setNsPrefix("dbpedia-owl", "http://dbpedia.org/ontology/")
+    .setNsPrefix("dbpedia", "http://dbpedia.org/resource/")
+    .lock()
+}
+
+
 abstract class JenaWrapper {
+  import JenaWrapper._
 
   def createQuery(queryString: String): Query = QueryFactory.create(queryString)
 
@@ -19,7 +30,7 @@ abstract class JenaWrapper {
     new ParameterizedSparqlString(queryString)
   }
   def addStandardPrefixes(pss: ParameterizedSparqlString): Unit = {
-    pss.setNsPrefixes(PrefixMapping.Standard)
+    pss.setNsPrefixes(DBpediaPrefixes)
   }
 
   def execQuery(qexec: QueryExecution): Future[List[QuerySolution]] = {
