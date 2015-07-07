@@ -17,7 +17,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.2.4",
-  "org.scalanlp" % "chalk" % "1.3.2",
+  "org.scalanlp" % "chalk" % "1.3.0",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.2",
   "org.linkeddatafragments" % "ldf-client" % "0.1-SNAPSHOT" changing()
     exclude("com.hp.hpl.jena", "jena"),
