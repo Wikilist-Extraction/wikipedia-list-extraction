@@ -1,8 +1,10 @@
 package textEvidence
 
-import chalk.text.tokenize.SimpleEnglishTokenizer.V1
+import sparql.JenaFragmentsWrapper
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.async.Async.{async, await}
 import chalk.text.tokenize.SimpleEnglishTokenizer
 import chalk.text.analyze.PorterStemmer
 
@@ -10,57 +12,80 @@ object TextEvidenceExtractor {
   val titleWeight = 2/3
   val abstractWeight = 1/3
 
-  val tokenizer = SimpleEnglishTokenizer.V1()
+  val tokenizer = SimpleEnglishTokenizer.V0()
 
   val abstractQueryString =
     """
       select ?abstract from <http://dbpedia.org> where
-      { <$uri> dbpedia-owl:abstract ?abstract. FILTER (langMatches(lang(?abstract),'en')) }
+      { ?uri dbpedia-owl:abstract ?abstract. FILTER (langMatches(lang(?abstract),'en')) }
     """
 
   val titleQueryString =
     """
       select ?title from <http://dbpedia.org> where
-      { <$uri> rdfs:label ?title. FILTER (langMatches(lang(?title),'en')) }
+      { ?uri rdfs:label ?title. FILTER (langMatches(lang(?title),'en')) }
     """
 }
 
-class TextEvidenceExtractor {
+class TextEvidenceExtractor extends JenaFragmentsWrapper{
   import TextEvidenceExtractor._
 
-  // TODO: Add to query wrapper
-  def executeQuery(uri: String) : String = ???
+  val fragmentServerUrl = "http://data.linkeddatafragments.org/dbpedia2014"
+
+  def getAbstract(uri: String) : Future[List[String]] = {
+    val abstractText = queryFragmentWithUri(abstractQueryString, uri)
+      .map ( _.map (_.getLiteral("abstract").getString))
+      .map ( _.head )
+      .map (text => tokenizeAndStemm(text))
+
+    abstractText
+  }
+
+  def getTitle(uri: String) : Future[List[String]] = {
+    val titleText = queryFragmentWithUri(titleQueryString, uri)
+      .map ( _.map (_.getLiteral("title").getString))
+      .map ( _.head )
+      .map (text => tokenizeAndStemm(text))
+
+    titleText
+  }
+
   // TODO: valid label?, slice prefix, to lowercase
   def cleanType(typeLabel: String) : String = ???
 
-  def normalizeTypes(types: List[String]): List[(String, Iterable[String])] = {
+  def normalizeTypes(types: List[String]): List[(String, List[String])] = {
     types map { typeLabel: String =>
       // TODO: Check if label is valid and slice prefixes, to lowercase
       val cleanedLabel = cleanType(typeLabel)
 
-      typeLabel -> tokenizer(cleanedLabel)
+      typeLabel -> tokenizeAndStemm(cleanedLabel)
     }
   }
 
-  def tokenizeAndStemm(text: String) : Iterable[String] = {
-    // TODO: To lowercase
-    val tokenized = tokenizer(text)
-    tokenized.map(token => PorterStemmer(token))
+  def tokenizeAndStemm(text: String) : List[String] = {
+    val tokenized = tokenizer(text.toLowerCase)
+    tokenized.map(token => PorterStemmer(token)).toList
   }
 
-  def getAbstractsAndTitle(uris: List[String]) : List[(Iterable[String], Iterable[String])] = {
-    val abstractsMap = for (uri <- uris) yield {
-      // TODO: Add to FragmentsWrapper
-      val titleText = executeQuery(titleQueryString.format(uri))
-      val abstractText = executeQuery(abstractQueryString.format(uri))
+  def getAbstractsAndTitle(uris: List[String]) : Future[List[(List[String], List[String])]] = {
+    /*
+    for {
+      uri <- uris
+      titleText <- getTitle(uri)
+      abstractText <- getAbstract(uri)
+    } yield (titleText, abstractText)
+    */
 
-      (tokenizeAndStemm(titleText), tokenizeAndStemm(abstractText))
+    val abstractsMap = for (uri <- uris) yield async {
+      val titleText = await(getTitle(uri))
+      val abstractText = await(getAbstract(uri))
+
+      (titleText, abstractText)
     }
-
-    abstractsMap
+    Future.sequence(abstractsMap)
   }
 
-  def countType(typeLabels: Iterable[String], text: Iterable[String]) : Int = {
+  def countType(typeLabels: List[String], text: List[String]) : Int = {
     val counts = typeLabels map { typeLabel: String =>
       var count = 0
       for (token <- text) {
@@ -74,7 +99,7 @@ class TextEvidenceExtractor {
     counts.min._2
   }
 
-  def rateTypes(types: List[(String, Iterable[String])], titles: Iterable[String], abstracts: Iterable[String]) : List[(String, Int)] = {
+  def rateTypes(types: List[(String, List[String])], titles: List[String], abstracts: List[String]) : Map[String, Int] = {
     val typeCounts = types map { typeTupel =>
       val typeLabel = typeTupel._1
       val normalizedTypes = typeTupel._2
@@ -85,35 +110,37 @@ class TextEvidenceExtractor {
       typeLabel -> count
     }
 
-    typeCounts
+    typeCounts.toMap[String, Int]
   }
 
-  def rateTypes(types: List[(String, Iterable[String])], abstractsMap: List[(Iterable[String], Iterable[String])]) : List[(String, Double)] = {
+  def rateTypes(types: List[(String, List[String])], abstractsMapFuture: Future[List[(List[String], List[String])]]) : Future[List[(String, Double)]] = {
     val typeCounts = types map { typeTupel =>
       val typeLabel = typeTupel._1
-      val normalizedTypes = typeTupel._2
+      val normalizedType = typeTupel._2
 
       var titleCount: Double = 0
       var abstractCount: Double = 0
 
-      for (abstractTupel <- abstractsMap) {
-        val abstractTitle = abstractTupel._1
-        val abstractText = abstractTupel._2
+      abstractsMapFuture.map(abstractsMap => {
+        for (abstractTupel <- abstractsMap) {
+          val abstractTitle = abstractTupel._1
+          val abstractText = abstractTupel._2
 
-        titleCount += countType(normalizedTypes, abstractTitle)
-        abstractCount += countType(normalizedTypes, abstractText)
-      }
+          titleCount += countType(normalizedType, abstractTitle)
+          abstractCount += countType(normalizedType, abstractText)
+        }
 
-      typeLabel -> (titleCount * titleWeight + abstractCount * abstractWeight)
+        typeLabel -> (titleCount * titleWeight + abstractCount * abstractWeight)
+      })
     }
 
-    typeCounts
+    Future.sequence(typeCounts)
   }
 
   /* Expects a list of uris for each list entity and a list of all types (generated by tf-idf) */
-  def compute(uris: List[String], types: List[String]) : List[(String, Double)] = {
+  def compute(uris: List[String], types: List[String]) : Future[List[(String, Double)]] = {
     val normalizedTypes = normalizeTypes(types)
-    val abstractsMap = getAbstractsAndTitle(uris)
+    val abstractsMap: Future[List[(List[String], List[String])]] = getAbstractsAndTitle(uris)
 
     rateTypes(normalizedTypes, abstractsMap)
   }
