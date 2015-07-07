@@ -10,7 +10,10 @@ logLevel := sbt.Level.Info
 
 testOptions in Test += Tests.Argument("-oD")
 
-resolvers += Resolver.mavenLocal
+resolvers ++= Seq(
+  Resolver.mavenLocal,
+  "unreleased-jars" at "http://nicoring.de/maven2/"
+)
 
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.2.4",
