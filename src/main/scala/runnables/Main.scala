@@ -1,5 +1,6 @@
 package runnables
 
+import implicits.ConversionImplicits._
 import dataFormats.WikiTablePage
 import dump.{ListProcessor, RecordReaderWrapper, TableProcessor}
 import it.cnr.isti.hpc.wikipedia.article.Article
