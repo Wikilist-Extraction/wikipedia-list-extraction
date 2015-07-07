@@ -21,7 +21,7 @@ object Main {
     val tablePages = tableExtractor.startProcessing()
 
 
-    val extractor = new  TableExtractor()
+    val extractor = new TableExtractor()
 
     println(listPages)
     println(tablePages)

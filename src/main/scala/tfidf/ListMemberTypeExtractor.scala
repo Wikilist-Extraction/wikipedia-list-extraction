@@ -100,11 +100,12 @@ class ListMemberTypeExtractor extends JenaFragmentsWrapper with JenaSparqlWrappe
     // some magic
     val tupleFuture: Future[Map[String, Double]] = typeCountMap
       .flatMap { typesMap =>
+      println(typesMap)
       val listOfFutures = typesMap.map {
         case (typeName: String, count: Int) =>
           async {
             val overallCount: Long = await(getCountOfEntityInDBpedia(typeName))
-            val countOfTypesInList: Int = await(typeCountMap).size
+            val countOfTypesInList: Int = typesMap.size
             typeName -> computeTfIdf(count, overallCount, countOfTypesInList)
           }
       }

@@ -27,3 +27,6 @@ case class Literal(raw: String, dataType: String) extends Entry
 case class WikiTable(header: List[String], rows: List[TableRow], name: String)
 case class TableRow(cells : List[TableCell])
 case class TableCell(entry : Entry)
+
+
+case class WikiListResult(listMembers: List[WikiLink], title: String, types: List[WikiLink])
