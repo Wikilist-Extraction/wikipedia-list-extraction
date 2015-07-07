@@ -9,10 +9,12 @@ import chalk.text.tokenize.SimpleEnglishTokenizer
 import chalk.text.analyze.PorterStemmer
 
 object TextEvidenceExtractor {
-  val titleWeight = 2/3
-  val abstractWeight = 1/3
+  val titleWeight : Double = 0.5
+  val abstractWeight : Double = 0.5
 
   val tokenizer = SimpleEnglishTokenizer.V0()
+
+  val camelCaseRegex = "([a-z](?=[A-Z]))".r
 
   val abstractQueryString =
     """
@@ -35,7 +37,7 @@ class TextEvidenceExtractor extends JenaFragmentsWrapper{
   def getAbstract(uri: String) : Future[List[String]] = {
     val abstractText = queryFragmentWithUri(abstractQueryString, uri)
       .map ( _.map (_.getLiteral("abstract").getString))
-      .map ( _.head )
+      .map ( _.headOption.getOrElse("") )
       .map (text => tokenizeAndStemm(text))
 
     abstractText
@@ -44,18 +46,21 @@ class TextEvidenceExtractor extends JenaFragmentsWrapper{
   def getTitle(uri: String) : Future[List[String]] = {
     val titleText = queryFragmentWithUri(titleQueryString, uri)
       .map ( _.map (_.getLiteral("title").getString))
-      .map ( _.head )
+      .map ( _.headOption.getOrElse("") )
       .map (text => tokenizeAndStemm(text))
 
     titleText
   }
 
-  // TODO: valid label?, slice prefix, to lowercase
-  def cleanType(typeLabel: String) : String = ???
+  def cleanType(typeUri: String) : String = {
+    /* "http://dbpedia.org/class/yago/LivingThing100004258" -> "living thing" */
+    var typeLabel = typeUri.substring(typeUri.lastIndexOf('/') + 1)
+    typeLabel = "\\d".r.replaceAllIn(typeLabel, "")
+    camelCaseRegex.replaceAllIn(typeLabel, "$1 ").toLowerCase
+  }
 
   def normalizeTypes(types: List[String]): List[(String, List[String])] = {
     types map { typeLabel: String =>
-      // TODO: Check if label is valid and slice prefixes, to lowercase
       val cleanedLabel = cleanType(typeLabel)
 
       typeLabel -> tokenizeAndStemm(cleanedLabel)
@@ -85,32 +90,17 @@ class TextEvidenceExtractor extends JenaFragmentsWrapper{
     Future.sequence(abstractsMap)
   }
 
-  def countType(typeLabels: List[String], text: List[String]) : Int = {
+  def countType(typeLabels: List[String], text: List[String]) : Double = {
     val counts = typeLabels map { typeLabel: String =>
       var count = 0
       for (token <- text) {
         if (typeLabel == token) { count += 1 }
       }
 
-      typeLabel -> count
+      count
     }
 
-    // return min count
-    counts.min._2
-  }
-
-  def rateTypes(types: List[(String, List[String])], titles: List[String], abstracts: List[String]) : Map[String, Int] = {
-    val typeCounts = types map { typeTupel =>
-      val typeLabel = typeTupel._1
-      val normalizedTypes = typeTupel._2
-      var count = 0
-      count += countType(normalizedTypes, titles) * titleWeight
-      count += countType(normalizedTypes, abstracts) * abstractWeight
-
-      typeLabel -> count
-    }
-
-    typeCounts.toMap[String, Int]
+    counts.min
   }
 
   def rateTypes(types: List[(String, List[String])], abstractsMapFuture: Future[List[(List[String], List[String])]]) : Future[List[(String, Double)]] = {
