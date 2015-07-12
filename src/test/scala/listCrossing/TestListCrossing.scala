@@ -1,12 +1,16 @@
-package textEvidence
+package listCrossing
 
 import org.scalatest.FlatSpec
+import textEvidence.TextEvidenceExtractor
+import tfidf.ListMemberTypeExtractor
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class TestTextEvidence extends FlatSpec {
+class TestListCrossing extends FlatSpec {
 
-  val extractor = new TextEvidenceExtractor()
+  val tfIdfExtractor = new ListMemberTypeExtractor()
+  val textEvidenceExtractor = new TextEvidenceExtractor()
+  val listCrosser = new ListCrosser()
 
   val resourceList = List(
     "http://dbpedia.org/resource/?arko_?abarkapa",
@@ -39,32 +43,16 @@ class TestTextEvidence extends FlatSpec {
     "http://dbpedia.org/resource/Ken_Campbell_(basketball)"
   )
 
-  val typesList = List(
-    "http://dbpedia.org/ontology/Agent",
-    "http://dbpedia.org/ontology/Athlete",
-    "http://dbpedia.org/ontology/BasketballPlayer",
-    "http://dbpedia.org/ontology/Person",
-    "http://dbpedia.org/ontology/BaseballPlayer",
-    "http://dbpedia.org/ontology/Coach",
-    "http://dbpedia.org/ontology/CollegeCoach",
-    "http://dbpedia.org/ontology/GridironFootballPlayer",
-    "http://dbpedia.org/class/yago/Athlete109820263",
-    "http://dbpedia.org/class/yago/LivingPeople",
-    "http://dbpedia.org/class/yago/BasketballPlayer109842047",
-    "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania"
-  )
+  it should "get the result of a crossed tf-idf and text-evidence list" in {
+    val tfIdfFuture = tfIdfExtractor.compute(resourceList)
+    val tfIdfList = Await.result(tfIdfFuture, 20 seconds)
 
-  it should "get a list of types with their score" in {
-    val resFuture = extractor.compute(resourceList, typesList)
-    val results = Await.result(resFuture, 20 seconds)
-    results
-  }
+    val typesList: List[String] = { for((key, value) <- tfIdfList) yield key }.toList
+    val textEvidenceFuture = textEvidenceExtractor.compute(resourceList, typesList)
+    val textEvidenceList = Await.result(textEvidenceFuture, 20 seconds)
 
-  it should "get the title of a given uri" in {
-    val uri = "http://dbpedia.org/resource/Bill_Haarlow"
-    val resultsFut = extractor.getTitle(uri)
-    val results = Await.result(resultsFut, 20 seconds)
-    results
+    val crossedList = listCrosser.crossLists(tfIdfList, textEvidenceList)
+    crossedList
   }
 
 }
