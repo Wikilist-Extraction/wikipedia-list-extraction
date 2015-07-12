@@ -1,16 +1,17 @@
-package tfidf
+package typesExtraction
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.scalatest.FlatSpec
 
 import scala.concurrent.Await
-import scala.language.postfixOps
 import scala.concurrent.duration._
-
+import scala.language.postfixOps
 
 /**
- * Created by nico on 05/07/15.
+ * Created by nico on 08/07/15.
  */
-class TfIdfSpec extends FlatSpec {
+class ListMemberTypeExtractorSpec extends FlatSpec {
   val extractor = new ListMemberTypeExtractor()
 
   val list = List(
@@ -66,25 +67,12 @@ class TfIdfSpec extends FlatSpec {
     "http://dbpedia.org/resource/Antoine_Carr",
     "http://dbpedia.org/resource/Austin_Carr"
   )
+  implicit val actorSys = ActorSystem("wikilist-extraction")
+  implicit val materializer = ActorMaterializer()
+//  val typesMap = extractor.getTypesMap(list)
 
-  "A ListMemberTypeExtractor" should "get the tf-idf scores of the 5 basketballers wikipage" in {
-      val resultFut = extractor.compute(list)
-      Await.result(resultFut, 20 seconds)
-  }
-
-  it should "get the tf-idf scores of the 10 basketballers wikipage" in {
-    val resultFut = extractor.compute(list)
+  "A ListMemberTypeExtractor" should "extractTypes of the list" in {
+    val resultFut = extractor.getTypesMap(list)
     Await.result(resultFut, 20 seconds)
   }
-
-  it should "get the tf-idf scores of the 20 basketballers wikipage" in {
-    val resultFut = extractor.compute(list)
-    Await.result(resultFut, 20 seconds)
-  }
-
-  it should "get the tf-idf scores of the all basketballers wikipage" in {
-    val resultFut = extractor.compute(list)
-    Await.result(resultFut, 20 seconds)
-  }
-
 }

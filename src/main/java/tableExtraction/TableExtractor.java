@@ -5,12 +5,34 @@ import dataFormats.WikiLink;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TableExtractor {
 
     private String[][] tableAsString;
 
     public List<WikiLink> extractTableEntities(List<RDFTable> wikiTables) {
+        List<WikiLink> links = wikiTables.stream()
+                .map(this::extractSingleTable)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        return links;
+    }
+
+    private List<WikiLink> extractSingleTable(RDFTable table) {
+        TableRater rater = new TableRater();
+        int[] rating = new int[table.getColumnCount()];
+        int[] uniqueness = rater.getUniquenessValues(table);
+        int[] leftness =  rater.rateLeftness(table);
+
+        for (int i = 0; i < rating.length; i++) {
+            rating[i] = uniqueness[i] + leftness[i];
+        }
+        int maxColumn = getMax(rating);
+        return table.getColumnAsLinks(maxColumn);
+    }
+
+    private List<WikiLink> getSimpleEntities(List<RDFTable> wikiTables) {
         List<WikiLink> links = new ArrayList<>();
         for (RDFTable table : wikiTables) {
             links.addAll(table.getColumnAsLinks(0));
@@ -18,11 +40,7 @@ public class TableExtractor {
         return links;
     }
 
-    private List<WikiLink> getSimpleEntities(RDFTable table) {
-        return null;
-    }
-
-    /*private List<String> extractTableEntities(RDFTable table) {
+    private List<WikiLink> extractTableEntities(RDFTable table) {
         int[] rating = new int[table.getColumnCount()];
         TableRater rater = new TableRater();
         int[] uniquenessValues =  rater.getUniquenessValues(table);
@@ -34,8 +52,8 @@ public class TableExtractor {
         }
 
         int maxColumn = getMax(rating);
-        return table.getColumnAsRDF(maxColumn);
-    }*/
+        return table.getColumnAsLinks(maxColumn);
+    }
 
 
     private void printStringTable(String[][] table) {

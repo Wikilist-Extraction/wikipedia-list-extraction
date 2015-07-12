@@ -2,7 +2,9 @@ package sparql
 
 import com.hp.hpl.jena.query._
 import com.hp.hpl.jena.rdf.model.ModelFactory
-import com.hp.hpl.jena.shared.PrefixMapping
+import com.hp.hpl.jena.shared.{Lock, PrefixMapping}
+import com.hp.hpl.jena.tdb.TDBFactory
+import org.apache.jena.riot.RDFDataMgr
 import org.linkeddatafragments.model.LinkedDataFragmentGraph
 
 import scala.concurrent._
@@ -13,13 +15,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 abstract class JenaWrapper {
 
+  val DBpediaPrefixes = PrefixMapping.Factory.create()
+    .setNsPrefixes( PrefixMapping.Standard )
+    .setNsPrefix("dbpedia-owl", "http://dbpedia.org/ontology/")
+    .setNsPrefix("dbpedia", "http://dbpedia.org/resource/")
+    .lock()
+
   def createQuery(queryString: String): Query = QueryFactory.create(queryString)
 
   def createParameterizedQuery(queryString: String): ParameterizedSparqlString = {
     new ParameterizedSparqlString(queryString)
   }
   def addStandardPrefixes(pss: ParameterizedSparqlString): Unit = {
-    pss.setNsPrefixes(PrefixMapping.Standard)
+    pss.setNsPrefixes(DBpediaPrefixes)
   }
 
   def execQuery(qexec: QueryExecution): Future[List[QuerySolution]] = {
@@ -81,3 +89,49 @@ trait JenaSparqlWrapper extends JenaWrapper {
     QueryExecutionFactory.sparqlService(endpointUrl, createQuery(queryString))
   }
 }
+
+trait JenaDumpWrapper extends JenaWrapper {
+  val tdbDirectory: String
+
+  lazy val dataset = TDBFactory.createDataset(tdbDirectory)
+  lazy val model = dataset.getDefaultModel
+
+  def queryDumpWithUri(queryString: String, uri: String): Future[List[QuerySolution]] = {
+    val pss = createParameterizedQuery(queryString)
+    pss.setIri("uri", uri)
+    addStandardPrefixes(pss)
+    execQuery(createDumpQueryExecution(pss))
+  }
+
+  def createDumpQueryExecution(query: Query): QueryExecution = QueryExecutionFactory.create(query, model)
+  def createDumpQueryExecution(pss: ParameterizedSparqlString): QueryExecution = createDumpQueryExecution(pss.asQuery())
+  def createDumpQueryExecution(queryString: String): QueryExecution = {
+    QueryExecutionFactory.create(createQuery(queryString), model)
+  }
+
+}
+
+
+//trait JenaDumpWrapper extends JenaWrapper {
+//  val dbpediaTypesDumpFileName: String
+////  val yagoTypesDumpFileName: String
+//
+//  lazy val dbpediaTypesModel = RDFDataMgr.loadModel(dbpediaTypesDumpFileName)
+////  lazy val yagoTypesModel = RDFDataMgr.loadModel(yagoTypesDumpFileName)
+//
+////  lazy val model = dbpediaTypesModel.add(yagoTypesModel)
+//  lazy val model = dbpediaTypesModel
+//  def queryDumpWithUri(queryString: String, uri: String): Future[List[QuerySolution]] = {
+//    val pss = createParameterizedQuery(queryString)
+//    pss.setIri("uri", uri)
+//    addStandardPrefixes(pss)
+//    execQuery(createDumpQueryExecution(pss))
+//  }
+//
+//  def createDumpQueryExecution(query: Query): QueryExecution = QueryExecutionFactory.create(query, model)
+//  def createDumpQueryExecution(pss: ParameterizedSparqlString): QueryExecution = createDumpQueryExecution(pss.asQuery())
+//  def createDumpQueryExecution(queryString: String): QueryExecution = {
+//    QueryExecutionFactory.create(createQuery(queryString), model)
+//  }
+//
+//}

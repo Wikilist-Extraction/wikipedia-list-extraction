@@ -1,41 +1,22 @@
 package runnables
 
-import tfidf.ListMemberTypeExtractor
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import typesExtraction.{TfIdfWorker, ListMemberTypeExtractor}
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by nico on 01/07/15.
  */
-object JenaSpike {
+object TfIdfSpike {
 
   def main (args: Array[String]) {
-    //    val jena = new JenaWrapper("http://dbpedia.org/sparql")
-
-    //    val endpoint = "http://dbpedia.org/sparql"
-
-    //    val qs =
-    //      """
-    //        SELECT ?type WHERE {
-    //          ?uri rdf:type ?type
-    //        }
-    //      """
-    //    val pss = createParameterizedQuery(qs)
-    //    pss.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    //    pss.setIri("uri", "http://dbpedia.org/resource/Jason_Caffey")
-    //
-    //    val qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", pss.asQuery())
-    //
-    //    val resultsFuture: Future[List[QuerySolution]] = execQuery(qexec)
-    //
-    //    val s: Future[List[String]] = resultsFuture map[List[String]] { results: List[QuerySolution] =>
-    //      results map { result =>
-    //        result.getResource("type").toString
-    //      }
-    //    }
-
 
     val lm = new ListMemberTypeExtractor()
+    val tfIdf = new TfIdfWorker()
+
     val list = List(
       "http://dbpedia.org/resource/?arko_?abarkapa",
       "http://dbpedia.org/resource/Barney_Cable",
@@ -89,9 +70,13 @@ object JenaSpike {
       "http://dbpedia.org/resource/Antoine_Carr",
       "http://dbpedia.org/resource/Austin_Carr"
     )
-    val s = lm.compute(list)
+    implicit val actorSys = ActorSystem("wikilist-extraction")
+    implicit val materializer = ActorMaterializer()
+    val typesCount = lm.getTypesMap(list)
 
-    val result = Await.result(s, 60 seconds)
+    val r = typesCount.flatMap(tfIdf.getTfIdfScores)
+
+    val result = Await.result(r, 60 seconds)
     println(result)
   }
 }

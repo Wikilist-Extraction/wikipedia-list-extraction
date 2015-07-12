@@ -4,16 +4,16 @@ import dataFormats.WikiLink;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RDFTable {
-    //ArrayList<TableEntry[]> table = new ArrayList<>();
-    private int colCount;
-    private int rowCount = 0;
+    TableRow headerRow;
     List<TableRow> rows_ = new ArrayList<>();
 
     RDFTable(List<TableRow> rows) {
-        rows_ = rows;
-    };
+        headerRow = rows.get(0);
+        rows_ = rows.subList(1,rows.size());
+    }
 
     public List<WikiLink> getColumnAsLinks(int columnIndex) {
         List<WikiLink> links = new ArrayList<>();
@@ -26,14 +26,28 @@ public class RDFTable {
         return links;
     }
 
-    /*public void insertRow(TableEntry[] row) {
-        if (row.length != colCount) {
-            //TODO throw useful exception
-            System.out.println("wrong number of columns");
-        }
-        rowCount++;
-        table.add(row);
-    }*/
+    public int getRowCount() {
+        return rows_.size();
+    }
+
+    public TableEntry getElement(int rowIndex, int columnIndex) {
+        return rows_.get(rowIndex).getEntries().get(columnIndex);
+    }
+
+    public List<String> getColumnNames() {
+        return headerRow.getEntries().stream().map(TableEntry::getRawContent)
+                .collect(Collectors.toList());
+    }
+
+    public int getColumnCount() {
+        return headerRow.getEntries().size();
+    }
+
+    public List<String> getColumnAsRawString(int columnIndex) {
+        return rows_.stream()
+                    .map(row -> row.getEntries().get(columnIndex).getRawContent())
+                    .collect(Collectors.toList());
+    }
 
     /*public List<Boolean> getColumnIsDBpediaEntry(int columnIndex) {
         List<Boolean> entryStatus = new ArrayList<>();
@@ -45,18 +59,8 @@ public class RDFTable {
         return entryStatus;
     }
 
-    public int getRowCount() {
-        return rowCount;
-    }
 
-    public List<String> getColumnNames() {
-        List<String> columnNames = new LinkedList<>();
-        TableEntry[] firstRow = table.get(0);
-        for (TableEntry entry : firstRow) {
-            columnNames.add(entry.getRawContent());
-        }
-        return columnNames;
-    }
+
 
     public String[][] getTableAsTextArray() {
         int rowCount = table.size();
@@ -71,13 +75,8 @@ public class RDFTable {
         return textArray;
     }
 
-    public TableEntry getElement(int i, int j) {
-        return table.get(i)[j];
-    }
 
-    public int getColumnCount() {
-        return colCount;
-    }
+
 
     public List<String> getColumnAsRDF(int index) {
         List<String> columnAsRDF = new LinkedList<>();
@@ -111,20 +110,6 @@ public class RDFTable {
         return columnRedirects;
     }*/
     /*
-    public List<String> getColumnAsRawString(int columnIndex) {
-        List<String> columnAsRawString = new LinkedList<>();
-        for (TableEntry[] row : table) {
-            //skip header row
-            if (Arrays.toString(row).contains("<th")) {
-                continue;
-            }
-
-            String rawString = row[columnIndex].getRawContent();
-            columnAsRawString.add(rawString);
-        }
-
-        return columnAsRawString;
-    }
 
     private String getTitleFromLink(String rawString) {
         if (rawString.contains("(page does not exist)")) {

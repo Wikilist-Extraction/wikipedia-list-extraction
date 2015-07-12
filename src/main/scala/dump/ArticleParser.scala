@@ -46,7 +46,8 @@ trait EntryCleaner {
 class ListArticleParser(val article: Article) extends ArticleParser {
 
   def entriesHaveOneLinkOnly(entries: List[List[WikiLink]]): Boolean = {
-    entries.forall { _.length == 1 }
+//    entries.forall { _.length == 1 }
+    true
   }
 
   override def parseArticle(): Option[WikiListPage] = {
