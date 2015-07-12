@@ -29,4 +29,8 @@ public class RecordReaderWrapper {
         }
         return articleList;
     }
+
+    public Iterator<Article> articleIterator() {
+        return listReader.iterator();
+    }
 }
