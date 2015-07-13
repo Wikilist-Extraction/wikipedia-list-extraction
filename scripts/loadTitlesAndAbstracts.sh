@@ -9,15 +9,13 @@ urlAbstracts="http://data.dws.informatik.uni-mannheim.de/dbpedia/2014/en/long_ab
 
 # cat /tmp/titles.nt /tmp/abstracts.nt > /tmp/titlesAndAbstracts.nt
 
-mkdir -p $(dirname $0)/../db/abstracts
-rm -rf $(dirname $0)/../db/abstracts
-curl --silent $urlAbstracts | bzip2 -d | sed -e '1d' -e '$d' -e 's/\\u\w{4}//' | tdbloader2 --loc $(dirname $0)/../db/abstracts
+# mkdir -p $(dirname $0)/../db/abstracts
+# rm -rf $(dirname $0)/../db/abstracts
+# curl --silent $urlAbstracts | bzip2 -d | sed -e '1d' -e '$d' -e 's/\\u[a-zA-Z0-9]\{0,4\}//g' | tdbloader2 --loc $(dirname $0)/../db/abstracts
 
-# mkdir -p $(dirname $0)/../db/titles
-# rm -rf $(dirname $0)/../db/titles
-# curl --silent $urlTitles | bzip2 -d | sed -e '1d' -e '$d' | iconv -c -f utf-8 -t ascii | tdbloader2 --loc $(dirname $0)/../db/titles
+mkdir -p $(dirname $0)/../db/titles
+rm -rf $(dirname $0)/../db/titles
+curl --silent $urlTitles | bzip2 -d | sed -e '1d' -e '$d' | iconv -c -f utf-8 -t ascii | tdbloader2 --loc $(dirname $0)/../db/titles
 
 # { curl --silent $urlTitles | bzip2 -d | sed -e '1d' -e '$d'; curl --silent $urlAbstracts | bzip2 -d | sed -e '1d' -e '$d'; } | iconv -c -f utf-8 -t ascii | tdbloader2 --loc $(dirname $0)/../db/textEvidence
 # { cat /tmp/abstracts.nt | sed '$d' ; cat /tmp/titles.nt | sed '$d'; } | tdbloader2 --loc $(dirname $0)/../db/textEvidence
-
-# rm /tmp/titlesAndAbstracts.nt
