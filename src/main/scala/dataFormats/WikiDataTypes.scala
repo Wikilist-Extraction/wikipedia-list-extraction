@@ -1,5 +1,7 @@
 package dataFormats
 
+import java.net.URLEncoder
+
 trait WikiPage {
   val title: String
   val wikiAbstract: String
@@ -23,8 +25,8 @@ case class WikiTablePage(
 
 
 trait Entry
-case class WikiLink(label: String, uri: String) extends Entry {
-  def toUri: String = "http://dbpedia.org/resource/" + uri
+case class WikiLink(label: String, id: String) extends Entry {
+  def toUri: String = "http://dbpedia.org/resource/" + URLEncoder.encode( id, "UTF-8")
 }
 case class Literal(raw: String, dataType: String) extends Entry
 

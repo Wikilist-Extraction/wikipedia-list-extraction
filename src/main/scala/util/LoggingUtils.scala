@@ -33,7 +33,7 @@ object LoggingUtils {
     f.foreach(x => {
       val t2 = System.currentTimeMillis
       val elapsedTime = t2 - t1
-//      println(text.trim() + " " + elapsedTime + "ms")
+      println(text.trim() + " " + elapsedTime + "ms")
     })
     f
   }

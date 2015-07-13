@@ -90,3 +90,9 @@ hs_err_pid*
 
 # Data Directories #
 data/
+
+# db directory
+db/*
+
+src/main/resources/typeCount.csv
+results/*

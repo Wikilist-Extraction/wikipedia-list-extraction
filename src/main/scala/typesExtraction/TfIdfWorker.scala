@@ -69,7 +69,6 @@ class TfIdfWorker extends JenaSparqlWrapper {
   }
 
   def getTfIdfScores(typeCounts: Map[String, Int]): Future[Map[String, Double]] = {
-
     val listOfFutures = typeCounts.map {
       case (typeName: String, count: Int) =>
         async {

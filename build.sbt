@@ -25,6 +25,7 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "chalk" % "1.3.3-SNAPSHOT",
   "org.scala-lang.modules" %% "scala-async" % "0.9.2",
   "com.typesafe.akka" %% "akka-stream-experimental"	% "1.0-RC4",
+  "io.spray" %%  "spray-json" % "1.3.2",
   "org.linkeddatafragments" % "ldf-client" % "0.1-SNAPSHOT"
     exclude("com.hp.hpl.jena", "jena"),
   "it.cnr.isti.hpc" % "json-wikipedia" % "1.0.2" //changing()

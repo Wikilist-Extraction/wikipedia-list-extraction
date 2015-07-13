@@ -1,10 +1,12 @@
 package textEvidence
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.scalatest.FlatSpec
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class TestTextEvidence extends FlatSpec {
+class TextEvidenceSpec extends FlatSpec {
 
   val extractor = new TextEvidenceExtractor()
 
@@ -54,16 +56,29 @@ class TestTextEvidence extends FlatSpec {
     "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania"
   )
 
+  implicit val actorSys = ActorSystem("wikilist-extraction")
+  implicit val materializer = ActorMaterializer()
+
   it should "get a list of types with their score (list of tuple)" in {
     val resFuture = extractor.compute(resourceList, typesList)
     val results = Await.result(resFuture, 20 seconds)
     results
   }
 
-  it should "get the title of a given uri" in {
+  it should "get the title of a given result" in {
+
     val uri = "http://dbpedia.org/resource/Bill_Haarlow"
-    val resultsFut = extractor.getTitle(uri)
-    val results = Await.result(resultsFut, 20 seconds)
+    val f = extractor.getTitle(uri)
+    val results = Await.result(f, 20 seconds)
+    results
+  }
+
+  it should "get the abstract of a given result" in {
+
+    val uri = "http://dbpedia.org/resource/Bill_Haarlow"
+
+    val f = extractor.getAbstract(uri)
+    val results = Await.result(f, 20 seconds)
     results
   }
 
