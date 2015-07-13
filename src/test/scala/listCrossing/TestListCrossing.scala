@@ -1,14 +1,19 @@
-package textEvidence
+package listCrossing
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatest.FlatSpec
+import textEvidence.TextEvidenceExtractor
+import typesExtraction.{TfIdfWorker, ListMemberTypeExtractor}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class TextEvidenceSpec extends FlatSpec {
+class TestListCrossing extends FlatSpec {
 
-  val extractor = new TextEvidenceExtractor()
+  val typeExtractor = new ListMemberTypeExtractor()
+  val tfIdfExtractor = new TfIdfWorker()
+  val textEvidenceExtractor = new TextEvidenceExtractor()
+  val listCrosser = new ListCrosser()
 
   val resourceList = List(
     "http://dbpedia.org/resource/?arko_?abarkapa",
@@ -41,47 +46,21 @@ class TextEvidenceSpec extends FlatSpec {
     "http://dbpedia.org/resource/Ken_Campbell_(basketball)"
   )
 
-  val typesList = List(
-    "http://dbpedia.org/ontology/Agent",
-    "http://dbpedia.org/ontology/Athlete",
-    "http://dbpedia.org/ontology/BasketballPlayer",
-    "http://dbpedia.org/ontology/Person",
-    "http://dbpedia.org/ontology/BaseballPlayer",
-    "http://dbpedia.org/ontology/Coach",
-    "http://dbpedia.org/ontology/CollegeCoach",
-    "http://dbpedia.org/ontology/GridironFootballPlayer",
-    "http://dbpedia.org/class/yago/Athlete109820263",
-    "http://dbpedia.org/class/yago/LivingPeople",
-    "http://dbpedia.org/class/yago/BasketballPlayer109842047",
-    "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania"
-  )
-
-
   implicit val actorSys = ActorSystem("wikilist-extraction")
   implicit val materializer = ActorMaterializer()
 
+  it should "get the result of a crossed tf-idf and text-evidence list" in {
+    val types = typeExtractor.getTypesMap(resourceList)
+    val typesCount = Await.result(types, 20 seconds)
+    val tfIdfFuture = tfIdfExtractor.getTfIdfScores(typesCount)
+    val tfIdfList = Await.result(tfIdfFuture, 20 seconds)
 
-  it should "get a list of types with their score" in {
-    val resFuture = extractor.compute(resourceList, typesList)
-    val results = Await.result(resFuture, 20 seconds)
-    results
-  }
+    val typesList: List[String] = typesCount.keys.toList
+    val textEvidenceFuture = textEvidenceExtractor.compute(resourceList, typesList)
+    val textEvidenceList = Await.result(textEvidenceFuture, 20 seconds)
 
-  it should "get the title of a given result" in {
-
-    val uri = "http://dbpedia.org/resource/Bill_Haarlow"
-    val f = extractor.getTitle(uri)
-    val results = Await.result(f, 20 seconds)
-    results
-  }
-
-  it should "get the abstract of a given result" in {
-
-    val uri = "http://dbpedia.org/resource/Bill_Haarlow"
-
-    val f = extractor.getAbstract(uri)
-    val results = Await.result(f, 20 seconds)
-    results
+    val crossedList = listCrosser.crossLists(tfIdfList, textEvidenceList)
+    crossedList
   }
 
 }
