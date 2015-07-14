@@ -1,6 +1,6 @@
 package runnables
 
-import sinks.JsonWriter
+import streams.JsonWriter
 
 /**
  * Created by nico on 13/07/15.
@@ -31,9 +31,7 @@ object JsonSpike {
     )
     )
 
-    val json = new JsonWriter
-
-    val j = json.createJson(resmap)
+    val j = JsonWriter.createResultJson(resmap)
 
     println(j.toString())
   }

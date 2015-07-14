@@ -7,7 +7,7 @@ scalaVersion := "2.11.6"
 scalacOptions += "-target:jvm-1.8"
 
 javaOptions in run ++= Seq(
-  "-Xms256M", "-Xmx6G"
+  "-Xms256M", "-Xmx4G"
 )
 
 logLevel := sbt.Level.Info
