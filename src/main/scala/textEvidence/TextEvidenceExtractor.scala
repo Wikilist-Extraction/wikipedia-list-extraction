@@ -26,13 +26,13 @@ object TextEvidenceExtractor {
 
   val abstractQueryString =
     """
-      select ?abstract from <http://dbpedia.org> where
-      { ?uri dbpedia-owl:abstract ?abstract. FILTER (langMatches(lang(?abstract),'en')) }
+      select ?abstract where
+      { ?uri rdfs:comment ?abstract. FILTER (langMatches(lang(?abstract),'en')) }
     """
 
   val titleQueryString =
     """
-      select ?title from <http://dbpedia.org> where
+      select ?title where
       { ?uri rdfs:label ?title. FILTER (langMatches(lang(?title),'en')) }
     """
 }

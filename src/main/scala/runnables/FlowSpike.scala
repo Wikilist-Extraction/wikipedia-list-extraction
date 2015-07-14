@@ -52,15 +52,15 @@ object FlowSpike {
       .via(convertArticle)
       .via(getTypesMap())
       .via(computeTfIdf())
-//      .via(computeTextEvidence())
-      .runWith(mapSink)
+      .via(computeTextEvidence())
+      .runWith(printSink)
 
 
     g foreach { res =>
-      val json = jsonWriter.createJson(res)
-      val writer = new FileWriter("results/result.json")
-      writer.write(json.prettyPrint)
-      writer.close()
+//      val json = jsonWriter.createJson(res)
+//      val writer = new FileWriter("results/result.json")
+//      writer.write(json.prettyPrint)
+//      writer.close()
       materializer.shutdown()
       actorSys.shutdown()
     }
@@ -84,7 +84,6 @@ object FlowSpike {
   def computeTfIdf(): Flow[WikiListResult, WikiListResult, Unit] = {
     val tfIdfWorker = new TfIdfWorker
     Flow[WikiListResult].mapAsyncUnordered(parallelCount) { result =>
-      println("starting: tf-idf")
       timeFuture("duration for computing tf-idf:") {
         tfIdfWorker.getTfIdfScores(result.types).map { resultMap =>
           WikiListResult(result.page, result.types, Map(TfIdfWorker.testSymbol -> resultMap))
@@ -100,7 +99,7 @@ object FlowSpike {
       val types = result.getTypes
       timeFuture("duration for computing text evidence:") {
         extractor.compute(entities, types).map { resultList =>
-          val newScores = result.scores + (TextEvidenceExtractor.testSymbol -> resultList.toMap)
+          val newScores = result.scores + (TextEvidenceExtractor.testSymbol -> resultList)
           WikiListResult(result.page, result.types, newScores)
         }
       }
