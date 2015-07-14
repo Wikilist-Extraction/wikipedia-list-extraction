@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.2",
   "org.linkeddatafragments" % "ldf-client" % "0.1-SNAPSHOT"
     exclude("com.hp.hpl.jena", "jena"),
-  "it.cnr.isti.hpc" % "json-wikipedia" % "1.0.3" //changing()
+  "it.cnr.isti.hpc" % "json-wikipedia" % "1.0.2" //changing()
     exclude("org.slf4j", "slf4j-api")
     exclude("ch.qos.logback", "logback-classic")
 )
