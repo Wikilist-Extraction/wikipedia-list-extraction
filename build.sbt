@@ -1,3 +1,5 @@
+import com.github.retronym.SbtOneJar._
+
 name := "wikipedia-list-extraction"
 
 version := "1.0"
@@ -13,6 +15,9 @@ javaOptions in run ++= Seq(
 logLevel := sbt.Level.Info
 
 testOptions in Test += Tests.Argument("-oD")
+
+oneJarSettings
+exportJars := true
 
 fork in run := true
 
