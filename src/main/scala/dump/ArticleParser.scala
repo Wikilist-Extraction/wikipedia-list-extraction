@@ -5,12 +5,14 @@ import it.cnr.isti.hpc.wikipedia.article.{Table, Link, Article}
 
 import implicits.ConversionImplicits._
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * Parser for parsing one article
  */
 trait ArticleParser {
   val article: Article
-  def links: List[Link] = article.getLinks
+  //def links: List[Link] = article.getLinks
   def parseArticle(): Option[WikiPage]
 
   def getCategoriesOf(article: Article): List[WikiLink] = {
@@ -20,10 +22,16 @@ trait ArticleParser {
   }
 
   def getLinksIn(entry: String): List[WikiLink] = {
-    for {
-      link <- links
-      if entry contains link.getDescription
-    } yield WikiLink(link.getDescription, link.getId)
+    val regexGroups = """LINK\[(.+)\|(.+)\]""".r
+
+    val listBuffer = new ListBuffer[WikiLink]()
+    val it = regexGroups.findAllIn(entry).matchData
+    while (it.hasNext) {
+      val subgroups = it.next.subgroups
+      listBuffer += WikiLink(subgroups(0), subgroups(1))
+    }
+
+    listBuffer.toList
   }
 }
 
@@ -79,7 +87,8 @@ class TableArticleParser(val article: Article) extends ArticleParser with EntryC
       // TODO: decide to choose the right link
       links.head
     } else {
-     extractTemplateFrom(Literal(rawCell, "String"))
+     //extractTemplateFrom(Literal(rawCell, "String"))
+      Literal(rawCell, "String")
     }
   }
 

@@ -6,6 +6,7 @@ import it.cnr.isti.hpc.wikipedia.article.Article;
 import it.cnr.isti.hpc.wikipedia.reader.filter.TypeFilter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,5 +29,9 @@ public class RecordReaderWrapper {
             articleList.add(article);
         }
         return articleList;
+    }
+
+    public Iterator<Article> iterator() {
+        return listReader.iterator();
     }
 }

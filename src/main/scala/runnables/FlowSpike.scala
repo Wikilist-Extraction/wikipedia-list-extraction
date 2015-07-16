@@ -16,6 +16,7 @@ import util.LoggingUtils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
+import scala.util.Success
 
 /**
  * Created by nico on 05/07/15.
@@ -24,7 +25,7 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/sample-lists.json"
+    val filename = "data/random1000.json"
 //    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
@@ -45,13 +46,14 @@ object FlowSpike {
 
 
     val g = Source(articleList)
-      .via(ExtractionFlows.tfIdfFlow)
-      .runWith(tfIdfSink)
+      .via(ExtractionFlows.completeFlow())
+      .runWith(mapSink)
 
+    timeFuture("completeDuration")(g)
 
-    g foreach { res =>
-      val json = JsonWriter.createTfIdfJson(res)
-      JsonWriter.write(json, "results/tfidf.json")
+    g onComplete  { case Success(res) =>
+      val json = JsonWriter.createResultJson(res)
+      JsonWriter.write(json, "results/result.json")
       materializer.shutdown()
       actorSys.shutdown()
     }

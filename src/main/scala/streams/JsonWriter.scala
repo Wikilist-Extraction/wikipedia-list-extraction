@@ -51,7 +51,7 @@ object JsonWriter {
   }
 
   def write(json: JsObject, fileName: String) = {
-    val writer = new FileWriter("results/tfidf.json")
+    val writer = new FileWriter(fileName)
     writer.write(json.prettyPrint)
     writer.close()
   }
