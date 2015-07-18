@@ -28,7 +28,7 @@ trait ArticleParser {
     val it = regexGroups.findAllIn(entry).matchData
     while (it.hasNext) {
       val subgroups = it.next.subgroups
-      listBuffer += WikiLink(subgroups(0), subgroups(1))
+      listBuffer += WikiLink(subgroups.head, subgroups(1))
     }
 
     listBuffer.toList
@@ -57,6 +57,10 @@ class ListArticleParser(val article: Article) extends ArticleParser {
     entries.forall { _.length <= 1 }
   }
 
+  def entriesHaveAtLeastOneLink(entries: List[List[WikiLink]]): Boolean = {
+    entries.exists(_.nonEmpty)
+  }
+
   override def parseArticle(): Option[WikiListPage] = {
     val lists = article.getLists
 
@@ -65,9 +69,9 @@ class ListArticleParser(val article: Article) extends ArticleParser {
       entry <- list
     } yield getLinksIn(entry)
 
-    if (entriesHaveOneLinkOnly(wikiLinksForEntry)) {
+    if (entriesHaveAtLeastOneLink(wikiLinksForEntry)) {
       val wikiList = WikiListPage(
-        wikiLinksForEntry.flatten,
+        wikiLinksForEntry flatMap(_.headOption), //wikiLinksForEntry.flatten,
         article.getTitle,
         article.getSummary,
         getCategoriesOf(article))

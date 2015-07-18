@@ -31,6 +31,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-async" % "0.9.2",
   "com.typesafe.akka" %% "akka-stream-experimental"	% "1.0-RC4",
   "io.spray" %%  "spray-json" % "1.3.2",
+  "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.3",
   "org.linkeddatafragments" % "ldf-client" % "0.1-SNAPSHOT"
     exclude("com.hp.hpl.jena", "jena"),
   "it.cnr.isti.hpc" % "json-wikipedia" % "1.0.2" //changing()
