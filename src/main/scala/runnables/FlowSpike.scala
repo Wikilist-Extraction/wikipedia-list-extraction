@@ -22,7 +22,7 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "data/json/random1000.json"
+    val filename = "data/random2000.json"
 //    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
@@ -45,38 +45,38 @@ object FlowSpike {
     // val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
 
 
-    val typeSink = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
-
-    val g = Source(() => articles)
-      .via(ExtractionFlows.tfIdfFlow())
-      .runWith(typeSink)
-
-
-    timeFuture("completeDuration")(g)
-
-    g foreach { res =>
-      val json = JsonWriter.createTfIdfJson(res)
-      JsonWriter.write(json, "data/results/tfidf1000-3.json")
-      materializer.shutdown()
-      actorSys.shutdown()
-    }
-
-//    val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
+//    val typeSink = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
 //
 //    val g = Source(() => articles)
-//      .via(ExtractionFlows.completeFlow())
+//      .via(ExtractionFlows.tfIdfFlow())
 //      .runWith(typeSink)
-//
 //
 //
 //    timeFuture("completeDuration")(g)
 //
 //    g foreach { res =>
-//      val json = JsonWriter.createResultJson(res)
-//      JsonWriter.write(json, "data/results/mississippix.json")
+//      val json = JsonWriter.createTfIdfJson(res)
+//      JsonWriter.write(json, "data/results/tfidf1000-3.json")
 //      materializer.shutdown()
 //      actorSys.shutdown()
 //    }
+
+    val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
+
+    val g = Source(() => articles)
+      .via(ExtractionFlows.completeFlow())
+      .runWith(typeSink)
+
+
+
+    timeFuture("completeDuration")(g)
+
+    g foreach { res =>
+      val json = JsonWriter.createResultJson(res)
+      JsonWriter.write(json, "results/result2000.json")
+      materializer.shutdown()
+      actorSys.shutdown()
+    }
 
   }
 }

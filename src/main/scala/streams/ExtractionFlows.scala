@@ -6,10 +6,9 @@ import dataFormats._
 import dump.{TableArticleParser, ListArticleParser}
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
-import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
+import ratings.{TfIdfRating, TextEvidenceRating}
 import scorer.Scorer
 import tableExtraction.TableExtractor
-import implicits.ConversionImplicits._
 import util.LoggingUtils._
 import scala.concurrent.ExecutionContext.Implicits.global
 
