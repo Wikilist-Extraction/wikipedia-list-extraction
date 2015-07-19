@@ -25,6 +25,7 @@ public class TableEntry {
         isLink = false;
         rawContent_ = raw;
     }
+
     public String getRawContent() {
         return rawContent_;
     }
@@ -60,6 +61,9 @@ public class TableEntry {
     }
 
     public String getLink() {
+        if (link_ == null && isDbpediaEntity) {
+            return  rawContent_.replace(" ", "_");
+        }
         return link_;
     }
 

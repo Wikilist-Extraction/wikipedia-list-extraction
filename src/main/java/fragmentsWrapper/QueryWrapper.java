@@ -74,8 +74,14 @@ public class QueryWrapper {
             "SELECT ?predicate { <http://dbpedia.org/resource/" + name + "> ?predicate ?object. }}" +
             "UNION { SELECT ?subject " +
             "{ ?subject ?predicate <http://dbpedia.org/resource/" + name +">}} }";
-        ResultSet predicates = executeQuery(queryString);
+        ResultSet predicates = null;
+        try {
+            predicates = executeQuery(queryString);
+        } catch (Exception e){
+            return false;
+        }
         return predicates.hasNext();
+
     }
 
 }

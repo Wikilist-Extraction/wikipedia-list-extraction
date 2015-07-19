@@ -8,6 +8,7 @@ import ratings.RDFTableWrapper
 import tableExtraction.TableExtractor
 
 //import tableExtraction.{RDFTable, TableExtractor}
+import tableExtraction.{RDFTable, TableExtractor}
 
 import scala.collection.JavaConverters._
 
@@ -22,18 +23,20 @@ object Main {
     val tableExtractor = new TableProcessor(articleList)
 
     val listPages = listExtractor.startProcessing()
-    val tablePages = tableExtractor.startProcessing()
+    try {
+      val tablePages = tableExtractor.startProcessing()
+      val extractor = new TableExtractor()
 
-
-    val extractor = new TableExtractor()
-
-    tablePages.foreach(page => {
-      val tablePage = new RDFTableWrapper(page.asInstanceOf[WikiTablePage])
-      val rdfTables = tablePage.convertTables()
-      extractor.extractTableEntities(rdfTables)
-    })
+      tablePages.foreach(page => {
+        val tablePage = new RDFTableWrapper(page.asInstanceOf[WikiTablePage])
+        val rdfTables = tablePage.convertTables()
+        extractor.extractTableEntities(rdfTables)
+      })
+      println(tablePages)
+    } catch {
+      case e:RuntimeException => println("empty table was given");
+    }
 
     println(listPages)
-    println(tablePages)
   }
 }

@@ -5,7 +5,6 @@ import implicits.ConversionImplicits._
 import tableExtraction.{RDFTable, TableEntry, TableExtractor, TableRow}
 
 class RDFTableWrapper(page: WikiTablePage) {
-
   val rdfTables: List[RDFTable] = convertTables()
   val tableExtractor = new TableExtractor()
 
@@ -26,7 +25,7 @@ class RDFTableWrapper(page: WikiTablePage) {
     page.tables map createJavaRDFTable
   }
 
-  def getResult(): WikiListPage = {
+  def getResult: WikiListPage = {
     val links = tableExtractor.extractTableEntities(rdfTables)
     WikiListPage(links, page.title, page.wikiAbstract, page.categories)
   }

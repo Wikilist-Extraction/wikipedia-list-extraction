@@ -2,13 +2,14 @@ package streams
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
-import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
-import dump.ListArticleParser
+import dataFormats._
+import dump.{TableArticleParser, ListArticleParser}
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
-import ratings.{TfIdfRating, TextEvidenceRating}
+import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
 import scorer.Scorer
-//import typesExtraction.TfIdfWorker
+import tableExtraction.TableExtractor
+import implicits.ConversionImplicits._
 import util.LoggingUtils._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -30,8 +31,51 @@ object ExtractionFlows {
     .via(getTypesMap())
     .via(computeTfIdf())
 
-  def convertArticle() = Flow[Article].mapConcat { article =>
-    new ListArticleParser(article).parseArticle().toList
+  def buildTableEntities(tablePage: WikiTablePage)(implicit extractor: TableExtractor): List[WikiLink] = {
+    val tableMatcher = new RDFTableWrapper(tablePage)
+    val rdfTables = tableMatcher.convertTables()
+    extractor.extractTableEntities(rdfTables)
+  }
+
+  def convertArticle()(implicit materializer: Materializer): Flow[Article, WikiListPage, Unit] = {
+    implicit val extractor = new TableExtractor
+
+    Flow[Article].mapConcat { article =>
+      time("time for converting article:") {
+        try {
+          println(s"starting list for ${article.getTitleInWikistyle}")
+          val parsedListPage = new ListArticleParser(article).parseArticle()
+
+          println(s"starting table for ${article.getTitleInWikistyle}")
+          val parsedTablePage = new TableArticleParser(article).parseArticle()
+
+          val finalPage = (parsedListPage, parsedTablePage) match {
+            case (Some(listPage), Some(tablePage)) => {
+              Some(WikiListPage(
+                listPage.listMembers ++ buildTableEntities(tablePage),
+                listPage.title,
+                listPage.wikiAbstract,
+                listPage.categories
+              ))
+            }
+            case (Some(listPage), _) => Some(listPage)
+            case (_, Some(tablePage)) => {
+              Some(WikiListPage(
+                buildTableEntities(tablePage),
+                tablePage.title,
+                tablePage.wikiAbstract,
+                tablePage.categories
+              ))
+            }
+            case _ => None
+          }
+
+          finalPage.toList
+        } catch {
+          case e: Exception => println("parseTables exception: " + e); List()
+        }
+      }
+    }
   }
 
   def getTypesMap()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
