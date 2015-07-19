@@ -26,7 +26,7 @@ case class WikiTablePage(
 
 trait Entry
 case class WikiLink(label: String, id: String) extends Entry {
-  def toUri: String = "http://dbpedia.org/resource/" + URLEncoder.encode( id, "UTF-8")
+  def toUri: String = "http://dbpedia.org/resource/" + URLEncoder.encode( id.replaceAll(" ", "_"), "UTF-8")
 }
 case class Literal(raw: String, dataType: String) extends Entry
 

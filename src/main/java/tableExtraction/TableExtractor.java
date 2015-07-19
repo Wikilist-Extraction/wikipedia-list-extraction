@@ -51,10 +51,10 @@ public class TableExtractor {
         TableRater rater = new TableRater();
         int[] uniquenessValues =  rater.getUniquenessValues(table);
         int[] leftnessValues = rater.rateLeftness(table);
-        int[] columnValues = rater.rateColumnMatches(table);
+//        int[] columnValues = rater.rateColumnMatches(table);
 
         for (int i = 0; i < rating.length; i++) {
-            rating[i] = uniquenessValues[i] + leftnessValues[i] + columnValues[i];
+            rating[i] = uniquenessValues[i] + leftnessValues[i]; //+ columnValues[i];
         }
 
         int maxColumn = getMax(rating);

@@ -23,7 +23,7 @@ object ExtractionFlows {
     .via(convertArticle())
     .via(getTypesMap())
     .via(computeTfIdf())
-    .via(computeTextEvidence())
+//    .via(computeTextEvidence())
     .via(fuseResults())
 
   def tfIdfFlow()(implicit materializer: Materializer) = Flow[Article]
@@ -32,9 +32,10 @@ object ExtractionFlows {
     .via(computeTfIdf())
 
   def buildTableEntities(tablePage: WikiTablePage)(implicit extractor: TableExtractor): List[WikiLink] = {
-    val tableMatcher = new RDFTableWrapper(tablePage)
-    val rdfTables = tableMatcher.convertTables()
-    extractor.extractTableEntities(rdfTables)
+//    val tableMatcher = new RDFTableWrapper(tablePage)
+//    val rdfTables = tableMatcher.convertTables()
+//    extractor.extractTableEntities(rdfTables)
+    List()
   }
 
   def convertArticle()(implicit materializer: Materializer): Flow[Article, WikiListPage, Unit] = {
@@ -85,6 +86,7 @@ object ExtractionFlows {
 
       timeFuture("duration for getting types:") {
         extractor.getTypesMap(page.getEntityUris) map { typesMap =>
+          if (typesMap.isEmpty) { println(s"${page.title} is empty!") }
           WikiListResult(page, typesMap, Map[Symbol, Map[String, Double]]().empty)
         }
       }

@@ -3,7 +3,7 @@ package runnables
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import dataFormats.WikiFusedResult
+import dataFormats.{WikiListResult, WikiFusedResult}
 import dump.RecordReaderWrapper
 import it.cnr.isti.hpc.wikipedia.article.Article
 
@@ -41,22 +41,42 @@ object FlowSpike {
 //      result :: list
 //    }
 
-    val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
-    val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
+    // val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
+    // val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
+
+
+    val typeSink = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
 
     val g = Source(() => articles)
-      .via(ExtractionFlows.completeFlow())
+      .via(ExtractionFlows.tfIdfFlow())
       .runWith(typeSink)
 
 
     timeFuture("completeDuration")(g)
 
     g foreach { res =>
-      val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, "data/results/result1000.json")
+      val json = JsonWriter.createTfIdfJson(res)
+      JsonWriter.write(json, "data/results/tfidf1000-3.json")
       materializer.shutdown()
       actorSys.shutdown()
     }
+
+//    val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
+//
+//    val g = Source(() => articles)
+//      .via(ExtractionFlows.completeFlow())
+//      .runWith(typeSink)
+//
+//
+//
+//    timeFuture("completeDuration")(g)
+//
+//    g foreach { res =>
+//      val json = JsonWriter.createResultJson(res)
+//      JsonWriter.write(json, "data/results/mississippix.json")
+//      materializer.shutdown()
+//      actorSys.shutdown()
+//    }
 
   }
 }
