@@ -29,8 +29,7 @@ object FlowSpike {
     implicit val materializer = ActorMaterializer()
 
     val reader = new RecordReaderWrapper(filename)
-    val articleList: List[Article] = reader.getArticlesList
-    println("Article count: ", articleList.size)
+    val articles: Iterator[Article] = reader.iterator
 
 //    val printSink = Sink.foreach[WikiListResult](result => println(s"finished: ${result.page.title} count:${result.scores}"))
 
@@ -45,7 +44,7 @@ object FlowSpike {
     val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
     val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
 
-    val g = Source(articleList)
+    val g = Source(() => articles)
       .via(ExtractionFlows.completeFlow())
       .runWith(typeSink)
 

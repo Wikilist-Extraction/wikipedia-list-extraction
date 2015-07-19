@@ -13,6 +13,10 @@ object ConversionImplicits {
     list.asScala.toList
   }
 
+  implicit def asScalaIterator[T](it: java.util.Iterator[T]): Iterator[T] = {
+    it.asScala
+  }
+
   implicit def asScalaListOfLists[T](list: java.util.List[java.util.List[T]]): List[List[T]] = {
     list.asScala.toList map { _.asScala.toList }
   }
