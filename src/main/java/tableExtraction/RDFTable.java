@@ -49,6 +49,15 @@ public class RDFTable {
                     .collect(Collectors.toList());
     }
 
+    public boolean columnContainsLinks(int columnIndex) {
+        for (TableRow row : rows_) {
+            TableEntry entry = row.getEntries().get(columnIndex);
+            if (entry.isLink()) {
+                return true;
+            }
+        }
+        return false;
+    }
     /*public List<Boolean> getColumnIsDBpediaEntry(int columnIndex) {
         List<Boolean> entryStatus = new ArrayList<>();
         for (TableEntry[] row : table) {
