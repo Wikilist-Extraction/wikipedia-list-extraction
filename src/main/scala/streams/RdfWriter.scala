@@ -30,11 +30,14 @@ class RdfWriter {
     writeToFile(fileName, model)
   }
 
-  private def addTypeStatement(entityUri: String, typeUri: String) = {
+  private def addTypeStatement(entityUri: String, typeUri: String, fileName: String) = {
     val subject = ResourceFactory.createResource(entityUri)
     val predicate = ResourceFactory.createProperty("rdfs", "type")
     val rdfObject = ResourceFactory.createResource(typeUri)
-    addStatement(subject, predicate, rdfObject)
+    val model = addStatement(subject, predicate, rdfObject)
+
+    println("==> Write to file")
+    writeToFile(fileName, model)
   }
 
   def addMembershipStatementsFor(page: WikiListPage, fileName: String) = {
@@ -43,10 +46,12 @@ class RdfWriter {
     }
   }
 
-  def addTypeStatementsFor(result: WikiFusedResult) = {
+  def addTypeStatementsFor(result: WikiFusedResult, fileName: String) = {
+    // TODO: result.type is empty
+    println("==| " + result.types)
     result.page.listMembers.foreach { entity =>
       result.types.foreach { typeUri =>
-        addTypeStatement(entity.toUri, typeUri)
+        addTypeStatement(entity.toUri, typeUri, fileName)
       }
     }
   }
