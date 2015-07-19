@@ -22,7 +22,7 @@ trait ArticleParser {
   }
 
   def getLinksIn(entry: String): List[WikiLink] = {
-    val regexGroups = """LINK\[(.+)\|(.+)\]""".r
+    val regexGroups = """LINK\[(.+?)\|(.+?)\]""".r
 
     val listBuffer = new ListBuffer[WikiLink]()
     val it = regexGroups.findAllIn(entry).matchData
@@ -63,7 +63,7 @@ class ListArticleParser(val article: Article) extends ArticleParser {
 
   def removeListOfLists(entries: List[List[WikiLink]]): List[List[WikiLink]] = {
     entries.map { list =>
-      list.filter { link => !link.toUri.contains("List_of_")}
+      list.filter { link => !link.id.contains("List_of_")}
     }.filter { list => list.size > 0 }
   }
 

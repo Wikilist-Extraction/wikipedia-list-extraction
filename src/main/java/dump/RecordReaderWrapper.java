@@ -19,7 +19,16 @@ public class RecordReaderWrapper {
 
     public RecordReaderWrapper(String filename) {
         reader = new RecordReader<Article>(filename, new JsonRecordParser<Article>(Article.class));
-        listReader = reader.filter(new TypeFilter(Article.Type.LIST));
+        listReader = reader.filter(new TypeFilter(
+                Article.Type.LIST,
+                Article.Type.UNKNOWN,
+                Article.Type.CATEGORY,
+                Article.Type.DISAMBIGUATION,
+                Article.Type.DISCUSSION,
+                Article.Type.FILE,
+                Article.Type.MAIN,
+                Article.Type.PROJECT,
+                Article.Type.TEMPLATE));
     }
 
     public List<Article> getArticlesList() {

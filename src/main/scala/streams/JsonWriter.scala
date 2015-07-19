@@ -27,9 +27,9 @@ object JsonWriter {
 
   def createResultJson(results: List[WikiFusedResult]): JsObject = {
     JsObject(
-      "lists" -> JsArray(results.map { result =>
-        JsObject(encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector))
-      }.toVector)
+      "lists" -> JsObject(results.map { result =>
+        encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector)
+      })
     )
   }
 
