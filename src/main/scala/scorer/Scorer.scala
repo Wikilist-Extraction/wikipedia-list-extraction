@@ -9,7 +9,8 @@ import ratings.{TfIdfRating, TextEvidenceRating}
 object Scorer {
 
   val thresholds = Map[Symbol, Double](
-    'tfIdf -> 0.1
+    'tfIdf -> 0.1,
+    'textEvidence -> 0.05
   )
 
   val finalThreshold = 0.1
@@ -18,6 +19,7 @@ object Scorer {
     'tfIdf -> 2,
     'textEvidence -> 1
   )
+  val weightsSum = weights.foldLeft(0.0) { (acc, keyValue) => acc + keyValue._2 }
 
   val owlThingType = "http://www.w3.org/2002/07/owl#Thing"
 
@@ -56,9 +58,13 @@ object Scorer {
           case _ => scoredTypes
         }
 
-        val normalizedScores = normalizeScores(mutatedScores)
-        val thresholdedScores = thresholdScores(normalizedScores, thresholds(algorithmName))
-        algorithmName -> thresholdedScores
+        if (mutatedScores.isEmpty) {
+          algorithmName -> mutatedScores
+        } else {
+          val normalizedScores = normalizeScores(mutatedScores)
+          val thresholdedScores = thresholdScores(normalizedScores, thresholds(algorithmName))
+          algorithmName -> thresholdedScores
+        }
       }
       .foldLeft(buildEmptyFuseMapFrom(allTypes.keys.toList)) { (appendedScoreTypes, scores) =>
         val algorithmName = scores._1
@@ -71,14 +77,15 @@ object Scorer {
       .foldLeft(Map[String, Double]()) { (acc, keyValue) =>
         val typeName = keyValue._1
         val algorithmScores: Map[Symbol, Double] = keyValue._2
-        val weightSum = weights.foldLeft(0.0) { (acc, keyValue) => acc + keyValue._2 }
 
-        acc + (typeName -> algorithmScores.foldLeft(0.0) { (acc, keyValue) =>
+        val tmpScore = algorithmScores.foldLeft(0.0) { (acc, keyValue) =>
           val algorithmName = keyValue._1
           val score = keyValue._2
 
           acc + (weights(algorithmName) * score)
-        })
+        }
+
+        acc + (typeName -> tmpScore / weightsSum)
       }
       .filter( _._2 < finalThreshold )
       .keys

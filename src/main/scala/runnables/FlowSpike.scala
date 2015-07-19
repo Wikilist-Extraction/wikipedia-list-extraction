@@ -32,7 +32,7 @@ object FlowSpike {
 
     val reader = new RecordReaderWrapper(filename)
     val articleList: List[Article] = reader.getArticlesList
-    println(articleList.size)
+    println("Article count: %d", articleList.size)
 
 //    val printSink = Sink.foreach[WikiListResult](result => println(s"finished: ${result.page.title} count:${result.scores}"))
 
@@ -49,12 +49,12 @@ object FlowSpike {
 
     val g = Source(articleList)
       .via(ExtractionFlows.completeFlow)
-      .runWith(printSink)
+      .runWith(typeSink)
 
 
     g foreach { res =>
-//      val json = JsonWriter.createJson(res)
-//      JsonWriter.write(json, "results/result.json")
+      val json = JsonWriter.createJson(res)
+      JsonWriter.write(json, "results/result.json")
       materializer.shutdown()
       actorSys.shutdown()
     }
