@@ -61,6 +61,12 @@ class ListArticleParser(val article: Article) extends ArticleParser {
     entries.exists(_.nonEmpty)
   }
 
+  def removeListOfLists(entries: List[List[WikiLink]]): List[List[WikiLink]] = {
+    entries.map { list =>
+      list.filter { link => !link.toUri.contains("Lists_of_")}
+    }.filter { list => list.size > 0 }
+  }
+
   override def parseArticle(): Option[WikiListPage] = {
     val lists = article.getLists
 
@@ -70,13 +76,19 @@ class ListArticleParser(val article: Article) extends ArticleParser {
     } yield getLinksIn(entry)
 
     if (entriesHaveAtLeastOneLink(wikiLinksForEntry)) {
-      val wikiList = WikiListPage(
-        wikiLinksForEntry flatMap(_.headOption), //wikiLinksForEntry.flatten,
-        article.getTitle,
-        article.getSummary,
-        getCategoriesOf(article))
+      val filteredWikiLinks = removeListOfLists(wikiLinksForEntry)
 
-      Some(wikiList)
+      if (filteredWikiLinks.isEmpty) {
+        None
+      } else {
+        val wikiList = WikiListPage(
+          wikiLinksForEntry flatMap (_.headOption), //wikiLinksForEntry.flatten,
+          article.getTitle,
+          article.getSummary,
+          getCategoriesOf(article))
+
+        Some(wikiList)
+      }
     } else {
       None
     }
