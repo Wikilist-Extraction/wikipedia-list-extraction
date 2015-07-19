@@ -1,9 +1,12 @@
 package streams
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.Flow
+
 import dataFormats._
 import dump.{TableArticleParser, ListArticleParser}
+import akka.stream.{FlowShape, Materializer}
+import akka.stream.scaladsl.{Sink, FlowGraph, Flow, Broadcast}
+import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
+import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
 import ratings.{TfIdfRating, TextEvidenceRating}
@@ -16,10 +19,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by nico on 14/07/15.
  */
 object ExtractionFlows {
+  val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
+    .via(storeMembershipStatementsInFile("results/membership.ttl"))
     .via(getTypesMap())
     .via(computeTfIdf())
 //    .via(computeTextEvidence())
@@ -75,6 +80,19 @@ object ExtractionFlows {
           case e: Exception => println("parseTables exception: " + e); List()
         }
       }
+    }
+  }
+
+  def storeMembershipStatementsInFile(fileName: String) = {
+    val statementsSink = Sink.foreach[WikiListPage](page => rdfWriter.addMembershipStatementsFor(page, fileName))
+
+    FlowGraph.partial[FlowShape[WikiListPage, WikiListPage]]() { implicit b =>
+      import FlowGraph.Implicits._
+
+      val broadcast = b.add(Broadcast[WikiListPage](2))
+      broadcast.out(0) ~> statementsSink
+
+      FlowShape(broadcast.in, broadcast.out(1))
     }
   }
 

@@ -1,11 +1,14 @@
 package dataFormats
 
 import java.net.URLEncoder
+import util.UriUtils._
 
 trait WikiPage {
   val title: String
   val wikiAbstract: String
   val categories: List[WikiLink]
+
+  def titleUri = "http://dbpedia.org/resource/" + encodeWikistyle(title)
 }
 
 case class WikiListPage(
