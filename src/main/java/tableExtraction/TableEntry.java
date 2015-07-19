@@ -14,13 +14,13 @@ public class TableEntry {
 
 
 
-    TableEntry(String link, String raw) {
+    public TableEntry(String link, String raw) {
         isLink = true;
         link_ = link;
         rawContent_ = raw;
     }
 
-    TableEntry(String raw) {
+    public TableEntry(String raw) {
         isLink = false;
         rawContent_ = raw;
     }

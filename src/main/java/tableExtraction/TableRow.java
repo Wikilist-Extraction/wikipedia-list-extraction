@@ -5,7 +5,7 @@ import java.util.List;
 public class TableRow {
     List<TableEntry> tableEntries;
 
-    TableRow(List<TableEntry> entries) {
+    public TableRow(List<TableEntry> entries) {
         tableEntries = entries;
     };
 
