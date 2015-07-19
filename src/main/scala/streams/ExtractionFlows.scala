@@ -22,7 +22,7 @@ object ExtractionFlows {
     .via(convertArticle())
     .via(getTypesMap())
     .via(computeTfIdf())
-//    .via(computeTextEvidence())
+    .via(computeTextEvidence())
     .via(fuseResults())
 
   def tfIdfFlow()(implicit materializer: Materializer) = Flow[Article]

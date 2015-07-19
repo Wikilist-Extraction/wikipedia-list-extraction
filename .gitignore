@@ -95,4 +95,4 @@ data/
 db/*
 
 src/main/resources/typeCount.csv
-results/*
+data/results/*

@@ -26,14 +26,11 @@ object JsonWriter {
   }
 
   def createJson(results: List[WikiFusedResult]): JsObject = {
-    JsObject()
-//    results.map { result =>
-//      JsObject(
-//        "lists" -> JsObject(result.types.map { case (listName, types) =>
-//          encodeWikistyle(listName) -> JsArray((types.map(JsString(_))).toVector)
-//        })
-//      )
-//    }
+    JsObject(
+      "lists" -> JsArray(results.map { result =>
+        JsObject(encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector))
+      }.toVector)
+    )
   }
 
   def tfIdfMapToJson(tfIdfMap: Map[String, Double]) = {
@@ -62,7 +59,7 @@ object JsonWriter {
   }
 
   def write(json: JsObject, fileName: String) = {
-    val writer = new FileWriter("results/tfidf.json")
+    val writer = new FileWriter(fileName)
     writer.write(json.prettyPrint)
     writer.close()
   }
