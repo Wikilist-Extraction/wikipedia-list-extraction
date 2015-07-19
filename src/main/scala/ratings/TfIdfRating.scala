@@ -1,22 +1,24 @@
-package typesExtraction
+package ratings
 
 import java.io.InputStream
 
+import akka.stream.Materializer
+import dataFormats.WikiListResult
 import sparql.JenaSparqlWrapper
 
 import scala.async.Async._
 import scala.collection.mutable
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 /**
  * Created by nico on 08/07/15.
  */
-object TfIdfWorker {
-  val testSymbol = 'tfIdf
-
+object TfIdfRating extends Rating {
+  // this is a manual queried value
   val totalEntityCount = 883644351
+  val name = 'tfIdf
 
   val entityCountQueryString =
     """
@@ -26,20 +28,18 @@ object TfIdfWorker {
     """
 }
 
-class TfIdfWorker extends JenaSparqlWrapper {
-  import TfIdfWorker._
+class TfIdfRating extends JenaSparqlWrapper with RatingResult {
+  import ratings.TfIdfRating._
 
   val endpointUrl = "http://dbpedia.org/sparql"
-
   val typeCountFileName = "/typeCount.csv"
-
   val cachedEntityCounts: mutable.AnyRefMap[String, Long] = loadTypeCount()
 
   private def loadTypeCount() = {
-    val stream : InputStream = getClass.getResourceAsStream(typeCountFileName)
-    val lines = scala.io.Source.fromInputStream(stream).getLines()
+      val stream : InputStream = getClass.getResourceAsStream(typeCountFileName)
+      val lines = scala.io.Source.fromInputStream(stream).getLines()
 
-    val associations = lines map { line: String =>
+      val associations = lines map { line: String =>
       val members = line.split(", ")
       val count = members.head.toLong
       val typeName = members.last
@@ -79,5 +79,9 @@ class TfIdfWorker extends JenaSparqlWrapper {
     }
     val futureOfList = Future.sequence(listOfFutures)
     futureOfList.map( _.toMap)
+  }
+
+  def getRating(result: WikiListResult)(implicit materializer: Materializer): Future[Map[String, Double]] = {
+    getTfIdfScores(result.types)
   }
 }

@@ -2,7 +2,9 @@ package runnables
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import typesExtraction.{TfIdfWorker, ListMemberTypeExtractor}
+import extractors.ListMemberTypeExtractor
+import ratings.TfIdfRating
+//import typesExtraction.TfIdfWorker
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -15,7 +17,7 @@ object TfIdfSpike {
   def main (args: Array[String]) {
 
     val lm = new ListMemberTypeExtractor()
-    val tfIdf = new TfIdfWorker()
+    val tfIdf = new TfIdfRating()
 
     val list = List(
       "http://dbpedia.org/resource/?arko_?abarkapa",

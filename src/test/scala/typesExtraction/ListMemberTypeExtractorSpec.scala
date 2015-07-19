@@ -2,6 +2,7 @@ package typesExtraction
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import extractors.ListMemberTypeExtractor
 import org.scalatest.FlatSpec
 
 import scala.concurrent.Await

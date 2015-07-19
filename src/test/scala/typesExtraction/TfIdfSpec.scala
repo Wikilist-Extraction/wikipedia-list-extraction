@@ -2,7 +2,9 @@ package typesExtraction
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import extractors.ListMemberTypeExtractor
 import org.scalatest.FlatSpec
+import ratings.TfIdfRating
 
 import scala.concurrent.Await
 import scala.language.postfixOps
@@ -14,7 +16,7 @@ import scala.concurrent.duration._
  */
 class TfIdfSpec extends FlatSpec {
   val extractor = new ListMemberTypeExtractor()
-  val tfIdf = new TfIdfWorker()
+  val tfIdf = new TfIdfRating()
 
   val list = List(
     "http://dbpedia.org/resource/?arko_?abarkapa",

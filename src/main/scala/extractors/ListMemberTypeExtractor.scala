@@ -1,18 +1,12 @@
-package typesExtraction
-
+package extractors
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
-import com.hp.hpl.jena.shared.Lock
+import sparql.JenaDumpWrapper
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import sparql.{JenaDumpWrapper, JenaFragmentsWrapper}
-import util.LoggingUtils._
-
+import scala.concurrent.Future
 import scala.reflect.io.Directory
-import scala.util.{Failure, Success}
 
 /**
  * Gets type for each list member, groups and counts them

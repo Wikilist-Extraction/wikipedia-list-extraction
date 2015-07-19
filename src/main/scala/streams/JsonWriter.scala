@@ -2,9 +2,9 @@ package streams
 
 import java.io.FileWriter
 
-import dataFormats.WikiListResult
+import dataFormats.{WikiFusedResult, WikiListResult}
+import ratings.TfIdfRating
 import spray.json.{JsArray, JsNumber, JsObject, JsString}
-import typesExtraction.TfIdfWorker
 
 /**
  * Created by nico on 13/07/15.
@@ -25,6 +25,17 @@ object JsonWriter {
     )
   }
 
+  def createJson(results: List[WikiFusedResult]): JsObject = {
+    JsObject()
+//    results.map { result =>
+//      JsObject(
+//        "lists" -> JsObject(result.types.map { case (listName, types) =>
+//          encodeWikistyle(listName) -> JsArray((types.map(JsString(_))).toVector)
+//        })
+//      )
+//    }
+  }
+
   def tfIdfMapToJson(tfIdfMap: Map[String, Double]) = {
     JsObject(tfIdfMap.mapValues(JsNumber(_)))
   }
@@ -32,7 +43,7 @@ object JsonWriter {
   def createTfIdfJson(results: List[WikiListResult]): JsObject = {
 
     val objects = results.map { result =>
-      val tfIdfMap = result.scores.get(TfIdfWorker.testSymbol).get
+      val tfIdfMap = result.scores.get(TfIdfRating.name).get
       JsObject(
         "listId" -> JsString(encodeWikistyle(result.page.title)),
         "entityCount" -> JsNumber(result.page.listMembers.size),

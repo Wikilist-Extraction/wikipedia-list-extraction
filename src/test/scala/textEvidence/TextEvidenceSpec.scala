@@ -3,12 +3,13 @@ package textEvidence
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatest.FlatSpec
+import ratings.TextEvidenceRating
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class TextEvidenceSpec extends FlatSpec {
 
-  val extractor = new TextEvidenceExtractor()
+  val extractor = new TextEvidenceRating()
 
   val resourceList = List(
     "http://dbpedia.org/resource/?arko_?abarkapa",
@@ -61,11 +62,11 @@ class TextEvidenceSpec extends FlatSpec {
   implicit val materializer = ActorMaterializer()
 
 
-  it should "get a list of types with their score" in {
-    val resFuture = extractor.compute(resourceList, typesList)
-    val results = Await.result(resFuture, 20 seconds)
-    results
-  }
+//  it should "get a list of types with their score" in {
+//    val resFuture = extractor.compute(resourceList, typesList)
+//    val results = Await.result(resFuture, 20 seconds)
+//    results
+//  }
 
   it should "get the title of a given result" in {
 

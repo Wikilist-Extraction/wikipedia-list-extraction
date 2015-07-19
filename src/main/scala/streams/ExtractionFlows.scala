@@ -2,11 +2,13 @@ package streams
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
-import dataFormats.{WikiListResult, WikiListPage}
+import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
 import dump.ListArticleParser
+import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
-import textEvidence.TextEvidenceExtractor
-import typesExtraction.{TfIdfWorker, ListMemberTypeExtractor}
+import ratings.{TfIdfRating, TextEvidenceRating}
+import scorer.Scorer
+//import typesExtraction.TfIdfWorker
 import util.LoggingUtils._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -20,7 +22,8 @@ object ExtractionFlows {
     .via(convertArticle())
     .via(getTypesMap())
     .via(computeTfIdf())
-    .via(computeTextEvidence())
+//    .via(computeTextEvidence())
+    .via(fuseResults())
 
   def tfIdfFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
@@ -44,28 +47,34 @@ object ExtractionFlows {
     }
   }
 
-  def computeTfIdf(): Flow[WikiListResult, WikiListResult, Unit] = {
-    val tfIdfWorker = new TfIdfWorker
+  def computeTfIdf()(implicit materializer: Materializer): Flow[WikiListResult, WikiListResult, Unit] = {
+    val rating = new TfIdfRating
     Flow[WikiListResult].mapAsyncUnordered(parallelCount) { result =>
       timeFuture("duration for computing tf-idf:") {
-        tfIdfWorker.getTfIdfScores(result.types).map { resultMap =>
-          WikiListResult(result.page, result.types, Map(TfIdfWorker.testSymbol -> resultMap))
+        rating.getRating(result).map { resultMap =>
+          WikiListResult(result.page, result.types, Map(TfIdfRating.name -> resultMap))
         }
       }
     }
   }
 
   def computeTextEvidence()(implicit materializer: Materializer): Flow[WikiListResult, WikiListResult, Unit] = {
-    val extractor = new TextEvidenceExtractor()
+    val rating = new TextEvidenceRating
     Flow[WikiListResult].mapAsyncUnordered(parallelCount) { result =>
       val entities = result.page.getEntityUris
       val types = result.getTypes
       timeFuture("duration for computing text evidence:") {
-        extractor.compute(entities, types).map { resultList =>
-          val newScores = result.scores + (TextEvidenceExtractor.testSymbol -> resultList)
+        rating.getRating(result).map { resultList =>
+          val newScores = result.scores + (TextEvidenceRating.name -> resultList)
           WikiListResult(result.page, result.types, newScores)
         }
       }
+    }
+  }
+
+  def fuseResults(): Flow[WikiListResult, WikiFusedResult, Unit] = {
+    Flow[WikiListResult].map { result =>
+      WikiFusedResult(result.page, Scorer.fuseResult(result))
     }
   }
 }
