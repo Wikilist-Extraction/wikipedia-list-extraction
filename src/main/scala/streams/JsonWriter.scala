@@ -19,13 +19,13 @@ object JsonWriter {
     encodeWikistyle(association._1) -> JsArray((association._2 map (JsString(_))).toVector)
   }
 
-  def createResultJson(result: Map[String, List[String]]): JsObject = {
-    JsObject(
-      "lists" -> JsObject(result map resultToJson)
-    )
-  }
+//  def createResultJson(result: Map[String, List[String]]): JsObject = {
+//    JsObject(
+//      "lists" -> JsObject(result map resultToJson)
+//    )
+//  }
 
-  def createJson(results: List[WikiFusedResult]): JsObject = {
+  def createResultJson(results: List[WikiFusedResult]): JsObject = {
     JsObject(
       "lists" -> JsArray(results.map { result =>
         JsObject(encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector))

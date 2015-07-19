@@ -74,7 +74,9 @@ object ExtractionFlows {
 
   def fuseResults(): Flow[WikiListResult, WikiFusedResult, Unit] = {
     Flow[WikiListResult].map { result =>
-      WikiFusedResult(result.page, Scorer.fuseResult(result))
+      time("duration for computing fused results:") {
+        WikiFusedResult(result.page, Scorer.fuseResult(result))
+      }
     }
   }
 }
