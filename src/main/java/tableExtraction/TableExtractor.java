@@ -22,11 +22,13 @@ public class TableExtractor {
     private List<WikiLink> extractSingleTable(RDFTable table) {
         TableRater rater = new TableRater();
         int[] rating = new int[table.getColumnCount()];
+
         int[] uniqueness = rater.getUniquenessValues(table);
         int[] leftness =  rater.rateLeftness(table);
+        int[] matching = rater.rateColumnMatches(table);
 
         for (int i = 0; i < rating.length; i++) {
-            rating[i] = uniqueness[i] + leftness[i];
+            rating[i] = uniqueness[i] + leftness[i] + matching[i];
         }
         int maxColumn = getMax(rating);
         return table.getColumnAsLinks(maxColumn);

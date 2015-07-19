@@ -11,6 +11,7 @@ public class TableEntry {
     private String rawContent_;
     private boolean isDbpediaEntity;
     private String link_;
+    private boolean checkedDpbediaEntity = false;
 
     public TableEntry(String link, String raw) {
         isLink = true;
@@ -62,8 +63,15 @@ public class TableEntry {
     }
 
     public boolean isDbpediaEntity() {
-        QueryWrapper wrapper = new QueryWrapper();
-        isDbpediaEntity = wrapper.isLiteralEntityQueryString(this.rawContent_).hasNext();
+        if (!checkedDpbediaEntity) {
+            QueryWrapper wrapper = new QueryWrapper();
+            if (isLink) {
+                isDbpediaEntity = wrapper.isLiteralEntityQueryString(this.getLink());
+            } else {
+                isDbpediaEntity = wrapper.isLiteralEntityQueryString(this.rawContent_);
+            }
+            checkedDpbediaEntity = true;
+        }
         return isDbpediaEntity;
     }
 }

@@ -7,14 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PredicateMatcher {
+    private final int MATCHING_RATIO = 3;
+
     public int countMatchingColumns(int columnIndex, RDFTable table) {
         int totalMatchingColumns = 0;
         int rowCount = table.getRowCount();
 
+        if (!table.columnContainsLinks(columnIndex)) {
+            return 0;
+        }
+
         for (int i = 0; i < table.getColumnCount(); i++) {
-            if (i == columnIndex) continue;
+            if (i == columnIndex) {
+                continue;
+            }
+
             int matches = matchColumns(columnIndex, i, table);
-            if (matches > rowCount / 3) {
+            if (matches > rowCount / MATCHING_RATIO) {
                 totalMatchingColumns++;
             }
         }
@@ -89,7 +98,7 @@ public class PredicateMatcher {
         //String name = helper.getRedirectedStringIfNeeded(entry);
         String name = entry.getLink();
         predicates = helper.buildPredicateBetweenEntityAndLiteral(name, literal);
-        return new ArrayList<>();
+        return new ArrayList<>(); 
     }
     /*
 
