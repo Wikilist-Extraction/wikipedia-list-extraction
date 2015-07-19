@@ -8,7 +8,7 @@ import dump.RecordReaderWrapper
 import it.cnr.isti.hpc.wikipedia.article.Article
 
 import implicits.ConversionImplicits._
-import streams.{ExtractionFlows, JsonWriter}
+import streams.{RdfWriter, ExtractionFlows, JsonWriter}
 import util.LoggingUtils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,6 +27,7 @@ object FlowSpike {
     implicit val actorSys = ActorSystem("wikilist-extraction")
     implicit val materializer = ActorMaterializer()
 
+    val rdfWriter = new RdfWriter()
     val reader = new RecordReaderWrapper(filename)
     val articles: Iterator[Article] = reader.iterator
 
@@ -51,6 +52,7 @@ object FlowSpike {
     timeFuture("completeDuration")(g)
 
     g foreach { res =>
+      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "results/types.ttl") }
       val json = JsonWriter.createResultJson(res)
       JsonWriter.write(json, "results/result.json")
       materializer.shutdown()

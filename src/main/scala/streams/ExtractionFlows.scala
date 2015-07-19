@@ -16,6 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by nico on 14/07/15.
  */
 object ExtractionFlows {
+  val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
@@ -36,17 +37,7 @@ object ExtractionFlows {
   }
 
   def storeMembershipStatementsInFile(fileName: String) = {
-    val rdfWriter = new RdfWriter()
     val statementsSink = Sink.foreach[WikiListPage](page => rdfWriter.addMembershipStatementsFor(page, fileName))
-
-    /*
-    statementsSink.mapMaterializedValue { future =>
-      future foreach { _ =>
-        println("here future ready")
-        rdfWriter.writeToFile(fileName)
-      }
-    }
-    */
 
     FlowGraph.partial[FlowShape[WikiListPage, WikiListPage]]() { implicit b =>
       import FlowGraph.Implicits._
