@@ -37,7 +37,7 @@ object TextEvidenceRating extends Rating {
 class TextEvidenceRating extends JenaTitleAbstractDumpWrapper with RatingResult {
   import ratings.TextEvidenceRating._
 
-  val titleTdbDirectory: String = "db/title"
+  val titleTdbDirectory: String = "db/titles"
   val abstractTdbDirectory: String = "db/abstracts"
 
   assert(!Directory(titleTdbDirectory).isEmpty)
