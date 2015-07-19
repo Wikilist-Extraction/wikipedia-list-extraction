@@ -114,5 +114,6 @@ class XMLDumpCreator {
     val dump = getDump(fileNameFrom)
     dump foreach(_ => println("success"))
     dump foreach (writeToFile(fileNameTo, _))
+    Await.ready(dump, 20 seconds)
   }
 }

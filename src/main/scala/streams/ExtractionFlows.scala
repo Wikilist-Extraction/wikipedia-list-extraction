@@ -1,7 +1,7 @@
 package streams
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.Flow
+import akka.stream.{FlowShape, Materializer}
+import akka.stream.scaladsl.{Sink, FlowGraph, Flow, Broadcast}
 import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
 import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
@@ -20,6 +20,7 @@ object ExtractionFlows {
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
+    .via(storeMembershipStatementsInFile("results/membership.ttl"))
     .via(getTypesMap())
     .via(computeTfIdf())
     .via(computeTextEvidence())
@@ -32,6 +33,29 @@ object ExtractionFlows {
 
   def convertArticle() = Flow[Article].mapConcat { article =>
     new ListArticleParser(article).parseArticle().toList
+  }
+
+  def storeMembershipStatementsInFile(fileName: String) = {
+    val rdfWriter = new RdfWriter()
+    val statementsSink = Sink.foreach[WikiListPage](rdfWriter.addMembershipStatementsFor)
+
+    /*
+    statementsSink.mapMaterializedValue { future =>
+      future foreach { _ =>
+        println("here future ready")
+        rdfWriter.writeToFile(fileName)
+      }
+    }
+    */
+
+    FlowGraph.partial[FlowShape[WikiListPage, WikiListPage]]() { implicit b =>
+      import FlowGraph.Implicits._
+
+      val broadcast = b.add(Broadcast[WikiListPage](2))
+      broadcast.out(0) ~> statementsSink
+
+      FlowShape(broadcast.in, broadcast.out(1))
+    }
   }
 
   def getTypesMap()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {

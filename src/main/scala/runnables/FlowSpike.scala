@@ -22,8 +22,7 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "data/random2000.json"
-//    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
+    val filename = "data/random1000.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
     implicit val materializer = ActorMaterializer()
@@ -53,7 +52,7 @@ object FlowSpike {
 
     g foreach { res =>
       val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, "results/result2000_2.json")
+      JsonWriter.write(json, "results/result.json")
       materializer.shutdown()
       actorSys.shutdown()
     }

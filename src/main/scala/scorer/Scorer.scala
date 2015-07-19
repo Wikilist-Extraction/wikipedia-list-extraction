@@ -9,11 +9,11 @@ import ratings.{TfIdfRating, TextEvidenceRating}
 object Scorer {
 
   val thresholds = Map[Symbol, Double](
-    'tfIdf -> 0.1,
-    'textEvidence -> 0.05
+    'tfIdf -> 0,
+    'textEvidence -> 0
   )
 
-  val finalThreshold = 0.1
+  val finalThreshold = 0
 
   val weights = Map[Symbol, Double](
     'tfIdf -> 2,

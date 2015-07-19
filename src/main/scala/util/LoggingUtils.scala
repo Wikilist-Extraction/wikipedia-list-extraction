@@ -12,18 +12,18 @@ object LoggingUtils {
     val x = thunk
     val t2 = System.currentTimeMillis
     val elapsedTime = t2 - t1
-    println(str.trim() + " " + elapsedTime + " ms")
+//    println(str.trim() + " " + elapsedTime + " ms")
     x
   }
 
   def logFuture[T](text: String)(block: => Future[T])(implicit executionContext: ExecutionContext): Future[T] = {
     val f = block
-    f.foreach(x => println(text))
+//    f.foreach(x => println(text))
     f
   }
 
   def logFutureResult[T](f: PartialFunction[Try[T], String])(block: => Future[T])(implicit executionContext: ExecutionContext): Future[T] = {
-    block onComplete f.andThen(println(_))
+//    block onComplete f.andThen(println(_))
     block
   }
 
@@ -33,7 +33,7 @@ object LoggingUtils {
     f.foreach(x => {
       val t2 = System.currentTimeMillis
       val elapsedTime = t2 - t1
-      println(text.trim() + " " + elapsedTime + "ms")
+//      println(text.trim() + " " + elapsedTime + "ms")
     })
     f
   }
