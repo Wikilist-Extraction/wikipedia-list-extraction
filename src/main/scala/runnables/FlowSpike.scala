@@ -24,7 +24,7 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "/Users/sven/Documents/office/hpi/knowledge-mining/wikipedia-list-extraction/data/json/random1000.json"
+    val filename = "data/random1000.json"
 //    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")

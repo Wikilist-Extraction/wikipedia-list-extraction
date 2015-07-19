@@ -22,7 +22,7 @@ object Scorer {
   val owlThingType = "http://www.w3.org/2002/07/owl#Thing"
 
   def normalizeScores(scoredTypes: Map[String, Double]): Map[String, Double] = {
-    val highestScore = scoredTypes.map{ _._2 }.max
+    val highestScore = scoredTypes.values.max
     scoredTypes.mapValues { score => score / highestScore }
   }
 
@@ -41,7 +41,7 @@ object Scorer {
     val scores: Map[Symbol, Map[String,Double]] = result.scores
 
     scores
-      .map { case(algorithmName, scoredTypes) =>
+      .map { case (algorithmName, scoredTypes) =>
         val mutatedScores = algorithmName match {
           case 'tfIdf => {
             // idea: threshold all types below olw:Thing score, which should be the most unspecific thing
@@ -53,7 +53,7 @@ object Scorer {
 
             scoredTypes.filter { case (_, score) => score < owlThingScore }
           }
-          case _ => { scoredTypes }
+          case _ => scoredTypes
         }
 
         val normalizedScores = normalizeScores(mutatedScores)
@@ -65,7 +65,7 @@ object Scorer {
         val scoredTypes = scores._2
 
         appendedScoreTypes.map { case (typeName, algorithmScores) =>
-          (typeName -> (algorithmScores + (algorithmName -> scoredTypes.getOrElse[Double](typeName, 0))))
+          typeName -> (algorithmScores + (algorithmName -> scoredTypes.getOrElse[Double](typeName, 0)))
         }
       }
       .foldLeft(Map[String, Double]()) { (acc, keyValue) =>
@@ -80,8 +80,8 @@ object Scorer {
           acc + (weights(algorithmName) * score)
         })
       }
-      .filter { _._2 < finalThreshold }
-      .map { _._1 }
+      .filter( _._2 < finalThreshold )
+      .keys
       .toList
   }
 }
