@@ -12,7 +12,7 @@ fi
 titleList=$1
 outputXml=$2
 
-curl \
+curl -# \
   -d "&action=submit&pages=$(cat $titleList| hexdump -v -e '/1 "%02x"' | sed 's/\(..\)/%\1/g' )" \
   http://en.wikipedia.org/w/index.php\?title\=Special:Export \
   -o "$outputXml" \
