@@ -11,8 +11,13 @@ public class RDFTable {
     List<TableRow> rows_ = new ArrayList<>();
 
     public RDFTable(List<TableRow> rows) {
+        if (rows.size() == 0) {
+            throw new RuntimeException("table was empty");
+        }
         headerRow = rows.get(0);
-        rows_ = rows.subList(1,rows.size());
+        rows_ = rows.subList(1,rows.size()).stream()
+                .filter(row -> row.getEntries().size() == headerRow.getEntries().size())
+                .collect(Collectors.toList());
     }
 
     public List<WikiLink> getColumnAsLinks(int columnIndex) {

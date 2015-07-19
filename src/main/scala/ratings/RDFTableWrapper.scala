@@ -4,9 +4,6 @@ import dataFormats._
 import implicits.ConversionImplicits._
 import tableExtraction.{RDFTable, TableEntry, TableExtractor, TableRow}
 
-/**
- * Created by nico on 30/06/15.
- */
 class RDFTableWrapper(page: WikiTablePage) {
   val rdfTables: List[RDFTable] = convertTables()
   val tableExtractor = new TableExtractor()

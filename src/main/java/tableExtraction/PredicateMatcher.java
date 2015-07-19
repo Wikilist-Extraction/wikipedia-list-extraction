@@ -1,6 +1,9 @@
 package tableExtraction;
 
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import fragmentsWrapper.QueryWrapper;
 
 import java.util.ArrayList;
@@ -73,21 +76,21 @@ public class PredicateMatcher {
         String name1;
         String name2;
 
-        //TODO add redirections
         //if (entryOfFirstColumn.isLink()){
         //    name1 = helper.getRedirectionQuery(entryOfFirstColumn);
         //}
 
         name1 = entryOfFirstColumn.getLink();
+        name1 = name1.replace(" ", "_");
 
         //if (entryOfSecondColumn.isLink()){
         //    name2 = helper.getRedirectedStringIfNeeded(entryOfSecondColumn);
         //}
         name2 = entryOfSecondColumn.getLink();
-
+        name2 = name2.replace(" ", "_");
 
         predicates = helper.buildPredicateBetweenEntitiesQuery(name1, name2);
-        return new ArrayList<>();
+        return getLabelsForPredicates(predicates);
     }
     private List<String> predicatesBetweenEntityAndLiteral(TableEntry entry, TableEntry
             literalEntry) {
@@ -97,8 +100,22 @@ public class PredicateMatcher {
         String literal = literalEntry.getRawContent();
         //String name = helper.getRedirectedStringIfNeeded(entry);
         String name = entry.getLink();
+        if (name == null) {
+            System.out.println();
+        }
+        name = name.replace(" ", "_");
         predicates = helper.buildPredicateBetweenEntityAndLiteral(name, literal);
-        return new ArrayList<>(); 
+        return getLabelsForPredicates(predicates);
+    }
+
+    private List<String> getLabelsForPredicates(ResultSet predicates) {
+        List<String> labels = new ArrayList<>();
+        while (predicates.hasNext()) {
+            QuerySolution solution = predicates.next();
+            RDFNode lit = solution.get("predicate");
+            labels.add(lit.toString());
+        }
+        return labels;
     }
     /*
 

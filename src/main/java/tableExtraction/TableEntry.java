@@ -13,6 +13,8 @@ public class TableEntry {
     private String link_;
     private boolean checkedDpbediaEntity = false;
 
+
+
     public TableEntry(String link, String raw) {
         isLink = true;
         link_ = link;
@@ -59,6 +61,9 @@ public class TableEntry {
     }
 
     public String getLink() {
+        if (link_ == null && isDbpediaEntity) {
+            return  rawContent_.replace(" ", "_");
+        }
         return link_;
     }
 

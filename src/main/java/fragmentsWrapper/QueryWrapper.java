@@ -2,6 +2,7 @@ package fragmentsWrapper;
 
 
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.tdb.TDBFactory;
 import org.apache.commons.lang.StringUtils;
 import org.linkeddatafragments.model.LinkedDataFragmentGraph;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -19,8 +20,9 @@ public class QueryWrapper {
         "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";
 
     public QueryWrapper() {
-        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph("http://fragments.dbpedia.org/2014/en");
-        model = ModelFactory.createModelForGraph(ldfg);
+        String titleTdbDirectory = "db/properties";
+        Dataset propertyDataset = TDBFactory.createDataset(titleTdbDirectory);
+        model = propertyDataset.getDefaultModel();;
     }
 
     public ResultSet executeQuery(String queryString) {
@@ -72,8 +74,14 @@ public class QueryWrapper {
             "SELECT ?predicate { <http://dbpedia.org/resource/" + name + "> ?predicate ?object. }}" +
             "UNION { SELECT ?subject " +
             "{ ?subject ?predicate <http://dbpedia.org/resource/" + name +">}} }";
-        ResultSet predicates = executeQuery(queryString);
+        ResultSet predicates = null;
+        try {
+            predicates = executeQuery(queryString);
+        } catch (Exception e){
+            return false;
+        }
         return predicates.hasNext();
+
     }
 
 }
