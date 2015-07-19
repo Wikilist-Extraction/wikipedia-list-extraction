@@ -33,9 +33,10 @@ object Main {
         extractor.extractTableEntities(rdfTables)
       })
       println(tablePages)
-    } catch {
-      case e:RuntimeException => println("empty table was given");
     }
+//  catch {
+//      case e:RuntimeException => println("empty table was given");
+//    }
 
     println(listPages)
   }

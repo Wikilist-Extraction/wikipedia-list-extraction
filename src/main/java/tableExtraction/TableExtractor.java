@@ -21,6 +21,10 @@ public class TableExtractor {
 
     private List<WikiLink> extractSingleTable(RDFTable table) {
         TableRater rater = new TableRater();
+        if (table.getRowCount() == 0) {
+            System.out.println("empty table was given");
+            return new ArrayList<>();
+        }
         int[] rating = new int[table.getColumnCount()];
 
         int[] uniqueness = rater.getUniquenessValues(table);

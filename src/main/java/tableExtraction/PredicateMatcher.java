@@ -1,5 +1,6 @@
 package tableExtraction;
 
+import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -8,6 +9,7 @@ import fragmentsWrapper.QueryWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PredicateMatcher {
     private final int MATCHING_RATIO = 3;
@@ -42,9 +44,14 @@ public class PredicateMatcher {
                 TableEntry entryOfFirstColumn = table.getElement(i, firstColumn);
                 TableEntry entryOfSecondColumn = table.getElement(i, secondColumn);
 
-                if (predicatesExistBetween(entryOfFirstColumn, entryOfSecondColumn)) {
-                    matchedEntries++;
+                try {
+                    if (predicatesExistBetween(entryOfFirstColumn, entryOfSecondColumn)) {
+                        matchedEntries++;
+                    }
+                } catch (QueryParseException e) {
+                    System.out.println("illegal query");
                 }
+
             }
 
             return matchedEntries;
@@ -100,8 +107,9 @@ public class PredicateMatcher {
         String literal = literalEntry.getRawContent();
         //String name = helper.getRedirectedStringIfNeeded(entry);
         String name = entry.getLink();
-        if (name == null) {
-            System.out.println();
+        if (name == null || Objects.equals(literal, "")) {
+            System.out.println("one entry was empty");
+            return new ArrayList<>();
         }
         name = name.replace(" ", "_");
         predicates = helper.buildPredicateBetweenEntityAndLiteral(name, literal);

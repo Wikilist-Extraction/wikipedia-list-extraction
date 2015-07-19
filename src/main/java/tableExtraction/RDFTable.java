@@ -12,12 +12,13 @@ public class RDFTable {
 
     public RDFTable(List<TableRow> rows) {
         if (rows.size() == 0) {
-            throw new RuntimeException("table was empty");
+            // throw new RuntimeException("table was empty");
+        } else {
+            headerRow = rows.get(0);
+            rows_ = rows.subList(1,rows.size()).stream()
+                    .filter(row -> row.getEntries().size() == headerRow.getEntries().size())
+                    .collect(Collectors.toList());
         }
-        headerRow = rows.get(0);
-        rows_ = rows.subList(1,rows.size()).stream()
-                .filter(row -> row.getEntries().size() == headerRow.getEntries().size())
-                .collect(Collectors.toList());
     }
 
     public List<WikiLink> getColumnAsLinks(int columnIndex) {
