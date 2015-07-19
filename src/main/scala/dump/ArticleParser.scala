@@ -63,7 +63,7 @@ class ListArticleParser(val article: Article) extends ArticleParser {
 
   def removeListOfLists(entries: List[List[WikiLink]]): List[List[WikiLink]] = {
     entries.map { list =>
-      list.filter { link => !link.toUri.contains("Lists_of_")}
+      list.filter { link => !link.toUri.contains("List_of_")}
     }.filter { list => list.size > 0 }
   }
 

@@ -10,7 +10,7 @@ public class RDFTable {
     TableRow headerRow;
     List<TableRow> rows_ = new ArrayList<>();
 
-    RDFTable(List<TableRow> rows) {
+    public RDFTable(List<TableRow> rows) {
         headerRow = rows.get(0);
         rows_ = rows.subList(1,rows.size());
     }

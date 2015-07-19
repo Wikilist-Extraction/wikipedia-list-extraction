@@ -2,12 +2,14 @@ package streams
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
-import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
+import dataFormats.{WikiTablePage, WikiFusedResult, WikiListResult, WikiListPage}
 import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
-import ratings.{TfIdfRating, TextEvidenceRating}
+import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
 import scorer.Scorer
+import tableExtraction.{TableExtractor, RDFTable}
+import implicits.ConversionImplicits._
 //import typesExtraction.TfIdfWorker
 import util.LoggingUtils._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,6 +22,7 @@ object ExtractionFlows {
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
+    .via(parseTables())
     .via(getTypesMap())
     .via(computeTfIdf())
     .via(computeTextEvidence())
@@ -32,6 +35,27 @@ object ExtractionFlows {
 
   def convertArticle() = Flow[Article].mapConcat { article =>
     new ListArticleParser(article).parseArticle().toList
+  }
+
+  def parseTables()(implicit materializder: Materializer): Flow[WikiListPage, WikiListPage, Unit] = {
+    val extractor = new TableExtractor
+    Flow[WikiListPage].map { page =>
+      println(s"starting table for ${page.title}")
+
+//      timeFuture("duration for table matching:") {
+
+        val tableMatcher = new RDFTableWrapper(page.asInstanceOf[WikiTablePage])
+        val rdfTables = tableMatcher.convertTables()
+
+        val tableEntities = extractor.extractTableEntities(rdfTables)
+
+        WikiListPage(
+          tableEntities ++ page.listMembers,
+          page.title,
+          page.wikiAbstract,
+          page.categories)
+//      }
+    }
   }
 
   def getTypesMap()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
