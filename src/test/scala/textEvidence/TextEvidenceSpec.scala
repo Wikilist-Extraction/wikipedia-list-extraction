@@ -73,15 +73,16 @@ class TextEvidenceSpec extends FlatSpec {
     val uri = "http://dbpedia.org/resource/Bill_Haarlow"
     val f = extractor.getTitle(uri)
     val results = Await.result(f, 20 seconds)
+    println("title: " + results)
     results
   }
 
   it should "get the abstract of a given result" in {
 
-    val uri = "http://dbpedia.org/resource/Bill_Haarlow"
-
+    val uri = "http://dbpedia.org/resource/Bob_Calihan"
     val f = extractor.getAbstract(uri)
     val results = Await.result(f, 20 seconds)
+    println("abstract: " + results)
     results
   }
 
