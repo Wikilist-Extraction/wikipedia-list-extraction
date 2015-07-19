@@ -37,7 +37,7 @@ object ExtractionFlows {
 
   def storeMembershipStatementsInFile(fileName: String) = {
     val rdfWriter = new RdfWriter()
-    val statementsSink = Sink.foreach[WikiListPage](rdfWriter.addMembershipStatementsFor)
+    val statementsSink = Sink.foreach[WikiListPage](page => rdfWriter.addMembershipStatementsFor(page, fileName))
 
     /*
     statementsSink.mapMaterializedValue { future =>

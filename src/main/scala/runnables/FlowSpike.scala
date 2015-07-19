@@ -22,7 +22,7 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "data/random1000.json"
+    val filename = "data/random2000.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
     implicit val materializer = ActorMaterializer()

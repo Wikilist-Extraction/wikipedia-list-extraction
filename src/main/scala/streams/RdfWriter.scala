@@ -15,16 +15,19 @@ import org.apache.jena.riot.{RDFFormat, RDFDataMgr}
  * Created by nico on 19/07/15.
  */
 class RdfWriter {
-  val model = ModelFactory.createDefaultModel()
 
+  private def addStatement(s: Resource, p: Property, o: Resource) : Model = {
+    val model = ModelFactory.createDefaultModel()
+    model.add(s, p, o)
+  }
 
-  private def addStatement(s: Resource, p: Property, o: Resource) = model.add(s, p, o)
-
-  private def addMembershipStatement(listUri: String, entityUri: String) = {
+  private def addMembershipStatement(listUri: String, entityUri: String, fileName: String) = {
     val subject = ResourceFactory.createResource(entityUri)
     val predicate = ResourceFactory.createProperty("dbpedia-lists", "memberOf")
     val rdfObject = ResourceFactory.createResource(listUri)
-    addStatement(subject, predicate, rdfObject)
+    val model = addStatement(subject, predicate, rdfObject)
+
+    writeToFile(fileName, model)
   }
 
   private def addTypeStatement(entityUri: String, typeUri: String) = {
@@ -34,10 +37,9 @@ class RdfWriter {
     addStatement(subject, predicate, rdfObject)
   }
 
-  def addMembershipStatementsFor(page: WikiListPage) = {
-    println("here add statements")
+  def addMembershipStatementsFor(page: WikiListPage, fileName: String) = {
     page.listMembers foreach { entity =>
-      addMembershipStatement(page.titleUri, entity.toUri)
+      addMembershipStatement(page.titleUri, entity.toUri, fileName: String)
     }
   }
 
@@ -49,7 +51,7 @@ class RdfWriter {
     }
   }
 
-  def writeToFile(fileName: String) = {
-    RDFDataMgr.write(new FileOutputStream(fileName), model, RDFFormat.TURTLE)
+  def writeToFile(fileName: String, model: Model) = {
+    RDFDataMgr.write(new FileOutputStream(fileName, true), model, RDFFormat.TURTLE)
   }
 }
