@@ -16,47 +16,43 @@ import org.apache.jena.riot.{RDFFormat, RDFDataMgr}
  */
 class RdfWriter {
 
-  private def addStatement(s: Resource, p: Property, o: Resource) : Model = {
-    val model = ModelFactory.createDefaultModel()
+  private def addStatement(s: Resource, p: Property, o: Resource, model: Model) = {
     model.add(s, p, o)
   }
 
-  private def addMembershipStatement(listUri: String, entityUri: String, fileName: String) = {
+  private def addMembershipStatement(listUri: String, entityUri: String, fileName: String, model: Model) = {
     val subject = ResourceFactory.createResource(entityUri)
     val predicate = ResourceFactory.createProperty("dbpedia-lists", "memberOf")
     val rdfObject = ResourceFactory.createResource(listUri)
-    val model = addStatement(subject, predicate, rdfObject)
-
-    writeToFile(fileName, model)
+    addStatement(subject, predicate, rdfObject, model)
   }
 
-  private def addTypeStatement(entityUri: String, typeUri: String, fileName: String) = {
+  private def addTypeStatement(entityUri: String, typeUri: String, fileName: String, model: Model) = {
     val subject = ResourceFactory.createResource(entityUri)
-    val predicate = ResourceFactory.createProperty("rdfs", "type")
+    val predicate = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "type")
     val rdfObject = ResourceFactory.createResource(typeUri)
-    val model = addStatement(subject, predicate, rdfObject)
-
-    println("==> Write to file")
-    writeToFile(fileName, model)
+    addStatement(subject, predicate, rdfObject, model)
   }
 
   def addMembershipStatementsFor(page: WikiListPage, fileName: String) = {
+    val model = ModelFactory.createDefaultModel()
     page.listMembers foreach { entity =>
-      addMembershipStatement(page.titleUri, entity.toUri, fileName: String)
+      addMembershipStatement(page.titleUri, entity.toUri, fileName: String, model)
     }
+    writeToFile(fileName, model)
   }
 
   def addTypeStatementsFor(result: WikiFusedResult, fileName: String) = {
-    // TODO: result.type is empty
-    println("==| " + result.types)
+    val model = ModelFactory.createDefaultModel()
     result.page.listMembers.foreach { entity =>
       result.types.foreach { typeUri =>
-        addTypeStatement(entity.toUri, typeUri, fileName)
+        addTypeStatement(entity.toUri, typeUri, fileName, model)
       }
     }
+    writeToFile(fileName, model)
   }
 
   def writeToFile(fileName: String, model: Model) = {
-    RDFDataMgr.write(new FileOutputStream(fileName, true), model, RDFFormat.TURTLE)
+    RDFDataMgr.write(new FileOutputStream(fileName, true), model, RDFFormat.NT)
   }
 }
