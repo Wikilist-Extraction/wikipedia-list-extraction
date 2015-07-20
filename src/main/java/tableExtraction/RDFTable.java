@@ -16,9 +16,17 @@ public class RDFTable {
         } else {
             headerRow = rows.get(0);
             rows_ = rows.subList(1,rows.size()).stream()
+                    .map(this::getCleandedRow)
                     .filter(row -> row.getEntries().size() == headerRow.getEntries().size())
                     .collect(Collectors.toList());
         }
+    }
+
+    private TableRow getCleandedRow(TableRow row) {
+        List<TableEntry> entries = row.getEntries().stream()
+                .filter(entry -> entry.isLink() || !entry.getRawContent().equals(""))
+                .collect(Collectors.toList());
+        return new TableRow(entries);
     }
 
     public List<WikiLink> getColumnAsLinks(int columnIndex) {
