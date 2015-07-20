@@ -1,15 +1,19 @@
 package runnables
 
+import dump.XMLDumpCreator
 import it.cnr.isti.hpc.wikipedia.reader.WikipediaArticleReader
 
 /**
- * Created by sven on 15/07/15.
+ * Created by nico on 19/07/15.
  */
-object Converter {
-  def main (args: Array[String]) {
-    val xmlFile = args(0)
+object JsonDumpCreator {
+  def main(args: Array[String]) {
+    val listsFile = args(0)
     val jsonFile = args(1)
+    val xmlFile = "/tmp/xmlDump.xml"
+    val dumpCreator = new XMLDumpCreator()
 
+    val xmlFileFut = dumpCreator.readFromAndWriteTo(listsFile, xmlFile)
     val wap: WikipediaArticleReader  = new WikipediaArticleReader(xmlFile, jsonFile, "en")
 
     try {

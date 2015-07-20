@@ -13,7 +13,7 @@ object Scorer {
 //    'textEvidence -> 0.0
   )
 
-  val finalThreshold = 0.1
+  val finalThreshold = 0
 
   val weights = Map[Symbol, Double](
     'tfIdf -> 2//,

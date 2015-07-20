@@ -132,7 +132,7 @@ trait JenaTitleAbstractDumpWrapper extends JenaWrapper {
   lazy val titleDataset = TDBFactory.createDataset(titleTdbDirectory)
   lazy val titleModel = titleDataset.getDefaultModel
 
-  lazy val abstractDataset = TDBFactory.createDataset(titleTdbDirectory)
+  lazy val abstractDataset = TDBFactory.createDataset(abstractTdbDirectory)
   lazy val abstractModel = abstractDataset.getDefaultModel
 
   def queryTitleDumpWithUri(queryString: String, uri: String): Future[List[QuerySolution]] = {
