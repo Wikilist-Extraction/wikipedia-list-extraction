@@ -32,10 +32,10 @@ object ExtractionFlows {
     .via(computeTfIdf())
 
   def buildTableEntities(tablePage: WikiTablePage)(implicit extractor: TableExtractor): List[WikiLink] = {
-//    val tableMatcher = new RDFTableWrapper(tablePage)
-//    val rdfTables = tableMatcher.convertTables()
-//    extractor.extractTableEntities(rdfTables)
-    List()
+    val tableMatcher = new RDFTableWrapper(tablePage)
+    val rdfTables = tableMatcher.convertTables()
+    extractor.extractTableEntities(rdfTables)
+//    List()
   }
 
   def convertArticle()(implicit materializer: Materializer): Flow[Article, WikiListPage, Unit] = {
