@@ -10,7 +10,7 @@ object JsonDumpCreator {
   def main(args: Array[String]) {
     val listsFile = args(0)
     val jsonFile = args(1)
-    val xmlFile = "/tmp/xmlDump.xml"
+    val xmlFile = "/data/xmlDump.xml"
     val dumpCreator = new XMLDumpCreator()
 
     val xmlFileFut = dumpCreator.readFromAndWriteTo(listsFile, xmlFile)
