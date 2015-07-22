@@ -5,6 +5,7 @@ import java.io.FileWriter
 import dataFormats.{WikiFusedResult, WikiListResult}
 import ratings.TfIdfRating
 import spray.json.{JsArray, JsNumber, JsObject, JsString}
+import util.UriUtils
 
 /**
  * Created by nico on 13/07/15.
@@ -20,9 +21,9 @@ object JsonWriter {
 
   def createResultJson(results: List[WikiFusedResult]): JsObject = {
     JsObject(
-      "lists" -> JsArray(results.map { result =>
-        JsObject(result.page.titleUri -> JsArray((result.types map (JsString(_))).toVector))
-      }.toVector)
+      "lists" -> JsObject(results.map { result =>
+        UriUtils.encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector)
+      })
     )
   }
 
@@ -35,7 +36,7 @@ object JsonWriter {
     val objects = results.map { result =>
       val tfIdfMap = result.scores.get(TfIdfRating.name).get
       JsObject(
-        "listId" -> JsString(result.page.titleUri),
+        "listId" -> JsString(UriUtils.encodeWikistyle(result.page.title)),
         "entityCount" -> JsNumber(result.page.listMembers.size),
         "results" -> JsArray( (result.getTypes map { typeName: String =>
           JsObject(

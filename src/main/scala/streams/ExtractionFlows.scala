@@ -9,10 +9,11 @@ import dataFormats.{WikiFusedResult, WikiListResult, WikiListPage}
 import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
-import ratings.{TfIdfRating, TextEvidenceRating}
+import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
 import scorer.Scorer
 import tableExtraction.TableExtractor
 import util.LoggingUtils._
+import implicits.ConversionImplicits._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -24,10 +25,10 @@ object ExtractionFlows {
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
-    .via(storeMembershipStatementsInFile("results/membership.ttl"))
+    .via(storeMembershipStatementsInFile("results/ttl/membership.ttl"))
     .via(getTypesMap())
     .via(computeTfIdf())
-//    .via(computeTextEvidence())
+    .via(computeTextEvidence())
     .via(fuseResults())
 
   def tfIdfFlow()(implicit materializer: Materializer) = Flow[Article]

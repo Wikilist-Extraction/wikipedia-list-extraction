@@ -3,7 +3,7 @@ package runnables
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import dataFormats.WikiFusedResult
+import dataFormats.{WikiListResult, WikiFusedResult}
 import dump.RecordReaderWrapper
 import it.cnr.isti.hpc.wikipedia.article.Article
 
@@ -22,7 +22,8 @@ object FlowSpike {
   def main(args: Array[String]) {
 
 
-    val filename = "data/random2000-cleaned.json"
+//    val filename = "data/json/scientists.json"
+    val filename = "data/json/random1000.json"
 //    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
@@ -46,18 +47,18 @@ object FlowSpike {
     // val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
 
 
-//    val typeSink = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
+//    val typeSinkTfIdf = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
 //
-//    val g = Source(() => articles)
+//    val gtf = Source(() => articles)
 //      .via(ExtractionFlows.tfIdfFlow())
-//      .runWith(typeSink)
+//      .runWith(typeSinkTfIdf)
 //
 //
-//    timeFuture("completeDuration")(g)
+//    timeFuture("completeDuration")(gtf)
 //
-//    g foreach { res =>
+//    gtf foreach { res =>
 //      val json = JsonWriter.createTfIdfJson(res)
-//      JsonWriter.write(json, "data/results/tfidf1000-3.json")
+//      JsonWriter.write(json, "data/results/scientists-tfidf.json")
 //      materializer.shutdown()
 //      actorSys.shutdown()
 //    }
@@ -68,14 +69,10 @@ object FlowSpike {
       .via(ExtractionFlows.completeFlow())
       .runWith(typeSink)
 
-
-
-    timeFuture("completeDuration")(g)
-
     g foreach { res =>
-      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "results/types.ttl") }
+      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "data/ttl/scientists.ttl") }
       val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, "results/random2000-cleaned.json")
+      JsonWriter.write(json, "data/results/random1000-5.json")
       materializer.shutdown()
       actorSys.shutdown()
     }

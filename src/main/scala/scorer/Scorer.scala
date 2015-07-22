@@ -9,15 +9,15 @@ import ratings.{TfIdfRating, TextEvidenceRating}
 object Scorer {
 
   val thresholds = Map[Symbol, Double](
-    'tfIdf -> 0.1//,
-//    'textEvidence -> 0.0
+    'tfIdf -> 0.1,
+    'textEvidence -> 0.0
   )
 
-  val finalThreshold = 0
+  val finalThreshold = 0.4
 
   val weights = Map[Symbol, Double](
-    'tfIdf -> 2//,
-//    'textEvidence -> 1
+    'tfIdf -> 1,
+    'textEvidence -> 1
   )
   val weightsSum = weights.foldLeft(0.0) { (acc, keyValue) => acc + keyValue._2 }
 
@@ -87,7 +87,7 @@ object Scorer {
 
         acc + (typeName -> tmpScore / weightsSum)
       }
-      .filter( _._2 >= finalThreshold )
+      .filter( _._2 > finalThreshold )
       .keys
       .toList
   }
