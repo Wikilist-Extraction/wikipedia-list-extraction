@@ -15,6 +15,7 @@ import tableExtraction.TableExtractor
 import util.LoggingUtils._
 import implicits.ConversionImplicits._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Created by nico on 14/07/15.
@@ -76,6 +77,7 @@ object ExtractionFlows {
             case _ => None
           }
 
+          println(s"built final page for ${article.getTitleInWikistyle}")
           finalPage.toList
         } catch {
           case e: Exception => println("parseTables exception: " + e); List()
@@ -100,13 +102,19 @@ object ExtractionFlows {
   def getTypesMap()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
     val extractor = new ListMemberTypeExtractor
     Flow[WikiListPage].mapAsyncUnordered(parallelCount) { page =>
-      println(s"starting: ${page.title} count: ${page.listMembers.size}")
+      try {
+        println(s"starting: ${page.title} count: ${page.listMembers.size}")
 
-      timeFuture("duration for getting types:") {
-        extractor.getTypesMap(page.getEntityUris) map { typesMap =>
-          if (typesMap.isEmpty) { println(s"${page.title} is empty!") }
-          WikiListResult(page, typesMap, Map[Symbol, Map[String, Double]]().empty)
+        timeFuture("duration for getting types:") {
+          extractor.getTypesMap(page.getEntityUris) map { typesMap =>
+            if (typesMap.isEmpty) {
+              println(s"${page.title} is empty!")
+            }
+            WikiListResult(page, typesMap, Map[Symbol, Map[String, Double]]().empty)
+          }
         }
+      } catch {
+        case e: Exception => println("getTypesMap exception: " + e); Future { WikiListResult(page, Map[String, Int]().empty, Map[Symbol, Map[String, Double]]().empty) }
       }
     }
   }
@@ -138,6 +146,7 @@ object ExtractionFlows {
 
   def fuseResults(): Flow[WikiListResult, WikiFusedResult, Unit] = {
     Flow[WikiListResult].map { result =>
+      println(s"fusing result for ${result.page.title}")
       time("duration for computing fused results:") {
         WikiFusedResult(result.page, Scorer.fuseResult(result))
       }

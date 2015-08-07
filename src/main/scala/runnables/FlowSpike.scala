@@ -21,9 +21,9 @@ import scala.language.postfixOps
 object FlowSpike {
   def main(args: Array[String]) {
 
-
 //    val filename = "data/json/scientists.json"
-    val filename = "data/json/random1000.json"
+//val filename = "data/json/poets.json"
+     val filename = "data/json/random1000.json"
 //    val filename = "/Users/nico/Studium/KnowMin/datasets/data/json/karateka-list.json"
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
@@ -64,15 +64,16 @@ object FlowSpike {
 //    }
 
     val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
+    //val rdfSink = Sink.foreach[WikiFusedResult](each => { rdfWriter.addTypeStatementsFor(each, "data/results/types_scientists.ttl") })
 
     val g = Source(() => articles)
       .via(ExtractionFlows.completeFlow())
       .runWith(typeSink)
 
     g foreach { res =>
-      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "data/ttl/scientists.ttl") }
+//      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "data/ttl/random1000-6.ttl") }
       val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, "data/results/random1000-5.json")
+      JsonWriter.write(json, "data/results/random1000-6.json")
       materializer.shutdown()
       actorSys.shutdown()
     }
