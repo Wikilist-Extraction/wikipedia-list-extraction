@@ -2,6 +2,7 @@ package textEvidence
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import dataFormats.WikiLink
 import org.scalatest.FlatSpec
 import ratings.TextEvidenceRating
 import scala.concurrent.Await
@@ -59,13 +60,19 @@ class TextEvidenceSpec extends FlatSpec {
     "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania" -> 0
   )
 
+  val categories = List(
+    new WikiLink("label", "Category:National_Basketball_Association_players"),
+    new WikiLink("label", "Category:National_Basketball_Association_lists"),
+    new WikiLink("label", "Category:Lists_of_lists")
+  )
+
 
   implicit val actorSys = ActorSystem("wikilist-extraction")
   implicit val materializer = ActorMaterializer()
 
 
   it should "get a list of types with their score" in {
-    val resFuture = extractor.compute(title, resourceList, typesList)
+    val resFuture = extractor.compute(title, resourceList, typesList, categories)
     val results = Await.result(resFuture, 20 seconds)
     println(results)
     results
