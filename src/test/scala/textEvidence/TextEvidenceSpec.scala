@@ -11,6 +11,8 @@ class TextEvidenceSpec extends FlatSpec {
 
   val extractor = new TextEvidenceRating()
 
+  val title = "Lists of National Basketball Association players"
+
   val resourceList = List(
     "http://dbpedia.org/resource/?arko_?abarkapa",
     "http://dbpedia.org/resource/Barney_Cable",
@@ -42,19 +44,19 @@ class TextEvidenceSpec extends FlatSpec {
     "http://dbpedia.org/resource/Ken_Campbell_(basketball)"
   )
 
-  val typesList = List(
-    "http://dbpedia.org/ontology/Agent",
-    "http://dbpedia.org/ontology/Athlete",
-    "http://dbpedia.org/ontology/BasketballPlayer",
-    "http://dbpedia.org/ontology/Person",
-    "http://dbpedia.org/ontology/BaseballPlayer",
-    "http://dbpedia.org/ontology/Coach",
-    "http://dbpedia.org/ontology/CollegeCoach",
-    "http://dbpedia.org/ontology/GridironFootballPlayer",
-    "http://dbpedia.org/class/yago/Athlete109820263",
-    "http://dbpedia.org/class/yago/LivingPeople",
-    "http://dbpedia.org/class/yago/BasketballPlayer109842047",
-    "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania"
+  val typesList = Map[String, Int](
+    "http://dbpedia.org/ontology/Agent" -> 0,
+    "http://dbpedia.org/ontology/Athlete" -> 0,
+    "http://dbpedia.org/ontology/BasketballPlayer" -> 0,
+    "http://dbpedia.org/ontology/Person" -> 0,
+    "http://dbpedia.org/ontology/BaseballPlayer" -> 0,
+    "http://dbpedia.org/ontology/Coach" -> 0,
+    "http://dbpedia.org/ontology/CollegeCoach" -> 0,
+    "http://dbpedia.org/ontology/GridironFootballPlayer" -> 0,
+    "http://dbpedia.org/class/yago/Athlete109820263" -> 0,
+    "http://dbpedia.org/class/yago/LivingPeople" -> 0,
+    "http://dbpedia.org/class/yago/BasketballPlayer109842047" -> 0,
+    "http://dbpedia.org/class/yago/BasketballPlayersFromPennsylvania" -> 0
   )
 
 
@@ -62,18 +64,18 @@ class TextEvidenceSpec extends FlatSpec {
   implicit val materializer = ActorMaterializer()
 
 
-//  it should "get a list of types with their score" in {
-//    val resFuture = extractor.compute(resourceList, typesList)
-//    val results = Await.result(resFuture, 20 seconds)
-//    results
-//  }
+  it should "get a list of types with their score" in {
+    val resFuture = extractor.compute(title, resourceList, typesList)
+    val results = Await.result(resFuture, 20 seconds)
+    println(results)
+    results
+  }
 
   it should "get the title of a given result" in {
 
     val uri = "http://dbpedia.org/resource/Bill_Haarlow"
     val f = extractor.getTitle(uri)
     val results = Await.result(f, 20 seconds)
-    println("title: " + results)
     results
   }
 
@@ -82,7 +84,6 @@ class TextEvidenceSpec extends FlatSpec {
     val uri = "http://dbpedia.org/resource/Bob_Calihan"
     val f = extractor.getAbstract(uri)
     val results = Await.result(f, 20 seconds)
-    println("abstract: " + results)
     results
   }
 
