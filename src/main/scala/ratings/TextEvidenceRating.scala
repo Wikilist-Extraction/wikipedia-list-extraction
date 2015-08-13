@@ -136,6 +136,10 @@ class TextEvidenceRating extends JenaTitleAbstractDumpWrapper with RatingResult 
       .mapAsyncUnordered(10)(getAbstractsAndTitle)
       .runFold[List[(List[String], List[String])]](List())((acc, elem) => elem :: acc)
 
+    abstractsMap.onFailure {
+      case e => println(e)
+    }
+
     rateTypes(normalizedTypes, abstractsMap)
       .map(_.toMap)
   }

@@ -29,6 +29,9 @@ class ListMemberTypeExtractor extends JenaDumpWrapper {
   def getTypesOf(uri: String): Future[List[String]] = {
     queryDumpWithUri(typeQueryString, uri)
       .map(_.map(_.getResource("type").toString))
+      .recover {
+        case e: IllegalArgumentException => List[String]()
+      }
   }
 
   def getTypesMap(linksList: List[String])(implicit materializer: Materializer): Future[Map[String, Int]] = {

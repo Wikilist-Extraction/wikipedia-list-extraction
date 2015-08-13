@@ -1,6 +1,8 @@
 package tableExtraction;
 
+import org.slf4j.Logger;
 import dataFormats.WikiLink;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +12,8 @@ import java.util.stream.Collectors;
 public class TableExtractor {
 
     private String[][] tableAsString;
+
+    private Logger logger = LoggerFactory.getLogger("TableExtractor");
 
     public List<WikiLink> extractTableEntities(List<RDFTable> wikiTables) {
         List<WikiLink> links = wikiTables.stream()
@@ -22,7 +26,7 @@ public class TableExtractor {
     private List<WikiLink> extractSingleTable(RDFTable table) {
         TableRater rater = new TableRater();
         if (table.getRowCount() == 0) {
-            System.out.println("empty table was given");
+            logger.info("empty table was given");
             return new ArrayList<>();
         }
         int[] rating = new int[table.getColumnCount()];

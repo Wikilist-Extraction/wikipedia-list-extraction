@@ -64,7 +64,7 @@ class ListArticleParser(val article: Article) extends ArticleParser {
   def removeListOfLists(entries: List[List[WikiLink]]): List[List[WikiLink]] = {
     entries.map { list =>
       list.filter { link => !link.id.contains("List_of_")}
-    }.filter { list => list.size > 0 }
+    }.filter { list => list.nonEmpty }
   }
 
   override def parseArticle(): Option[WikiListPage] = {

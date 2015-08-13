@@ -1,6 +1,7 @@
 package streams
 
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import dataFormats._
 import dump.{TableArticleParser, ListArticleParser}
 import akka.stream.{FlowShape, Materializer}
@@ -15,18 +16,20 @@ import tableExtraction.TableExtractor
 import util.LoggingUtils._
 import implicits.ConversionImplicits._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 /**
  * Created by nico on 14/07/15.
  */
-object ExtractionFlows {
+object ExtractionFlows extends LazyLogging {
   val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
-    .via(storeMembershipStatementsInFile("results/ttl/membership.ttl"))
+    .via(storeMembershipStatementsInFile("results/membership.ttl"))
     .via(getTypesMap())
+    .via(filterEmptyTypes())
     .via(computeTfIdf())
     .via(computeTextEvidence())
     .via(fuseResults())
@@ -34,51 +37,52 @@ object ExtractionFlows {
   def tfIdfFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
     .via(getTypesMap())
+    .via(filterEmptyTypes())
     .via(computeTfIdf())
 
-  def buildTableEntities(tablePage: WikiTablePage)(implicit extractor: TableExtractor): List[WikiLink] = {
-    val tableMatcher = new RDFTableWrapper(tablePage)
-    val rdfTables = tableMatcher.convertTables()
-    extractor.extractTableEntities(rdfTables)
-//    List()
-  }
 
   def convertArticle()(implicit materializer: Materializer): Flow[Article, WikiListPage, Unit] = {
-    implicit val extractor = new TableExtractor
+    val extractor = new TableExtractor
+
+    def buildTableEntities(tablePage: WikiTablePage): List[WikiLink] = {
+      val tableMatcher = new RDFTableWrapper(tablePage)
+      val rdfTables = tableMatcher.convertTables()
+      extractor.extractTableEntities(rdfTables)
+      //    List()
+    }
 
     Flow[Article].mapConcat { article =>
       time("time for converting article:") {
         try {
-          println(s"starting list for ${article.getTitleInWikistyle}")
+          logger.info(s"starting list for ${article.getTitleInWikistyle}")
           val parsedListPage = new ListArticleParser(article).parseArticle()
 
-          println(s"starting table for ${article.getTitleInWikistyle}")
+          logger.info(s"starting table for ${article.getTitleInWikistyle}")
           val parsedTablePage = new TableArticleParser(article).parseArticle()
 
           val finalPage = (parsedListPage, parsedTablePage) match {
-            case (Some(listPage), Some(tablePage)) => {
+            case (Some(listPage), Some(tablePage)) =>
               Some(WikiListPage(
                 listPage.listMembers ++ buildTableEntities(tablePage),
                 listPage.title,
                 listPage.wikiAbstract,
                 listPage.categories
               ))
-            }
             case (Some(listPage), _) => Some(listPage)
-            case (_, Some(tablePage)) => {
+            case (_, Some(tablePage)) =>
               Some(WikiListPage(
                 buildTableEntities(tablePage),
                 tablePage.title,
                 tablePage.wikiAbstract,
                 tablePage.categories
               ))
-            }
             case _ => None
           }
-
           finalPage.toList
         } catch {
-          case e: Exception => println("parseTables exception: " + e); List()
+          case e: Exception =>
+            logger.error("parseTables exception: " + e)
+            List()
         }
       }
     }
@@ -100,15 +104,19 @@ object ExtractionFlows {
   def getTypesMap()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
     val extractor = new ListMemberTypeExtractor
     Flow[WikiListPage].mapAsyncUnordered(parallelCount) { page =>
-      println(s"starting: ${page.title} count: ${page.listMembers.size}")
+      logger.info(s"starting: ${page.title} count: ${page.listMembers.size}")
 
       timeFuture("duration for getting types:") {
         extractor.getTypesMap(page.getEntityUris) map { typesMap =>
-          if (typesMap.isEmpty) { println(s"${page.title} is empty!") }
+          if (typesMap.isEmpty) { logger.info(s"${page.title} is empty!") }
           WikiListResult(page, typesMap, Map[Symbol, Map[String, Double]]().empty)
         }
       }
     }
+  }
+
+  def filterEmptyTypes(): Flow[WikiListResult, WikiListResult, Unit] = {
+    Flow[WikiListResult].filter(_.types.nonEmpty)
   }
 
   def computeTfIdf()(implicit materializer: Materializer): Flow[WikiListResult, WikiListResult, Unit] = {

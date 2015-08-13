@@ -22,7 +22,7 @@ class RdfWriter {
 
   private def addMembershipStatement(listUri: String, entityUri: String, fileName: String, model: Model) = {
     val subject = ResourceFactory.createResource(entityUri)
-    val predicate = ResourceFactory.createProperty("dbpedia-lists", "memberOf")
+    val predicate = ResourceFactory.createProperty("http://dbpedia.org/ontology/", "memberOf")
     val rdfObject = ResourceFactory.createResource(listUri)
     addStatement(subject, predicate, rdfObject, model)
   }
