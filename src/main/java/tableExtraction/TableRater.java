@@ -59,22 +59,4 @@ public class TableRater {
         }
 
         return matchedColumns;
-    }
-
-
-    private int findMaxColumn(int[] rating) {
-        int max = 0;
-        int maxPosition = 0;
-        for (int i = 0; i < rating.length; i++) {
-            if (rating[i] > max) {
-                max = rating[i];
-                maxPosition = i;
-            }
-        }
-        return maxPosition;
-    }
-
-    private int[] rateColumnRelationships() {
-        return null;
-    }
-}
+    }}

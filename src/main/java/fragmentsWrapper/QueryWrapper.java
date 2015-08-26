@@ -12,23 +12,40 @@ import com.hp.hpl.jena.query.*;
 public class QueryWrapper {
 
     private Model model;
+    private Model linkedDataModel;
+
+    public static int numberOfQueries = 0;
 
     private String prefixes = "" +
         "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> " +
-        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
         "PREFIX dbpedia: <http://dbpedia.org/resource/> " +
-        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";
+        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" +
+        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+            "PREFIX owl: <http://www.w3.org/2002/07/owl#>" ;
 
     public QueryWrapper() {
         String titleTdbDirectory = "db/properties";
         Dataset propertyDataset = TDBFactory.createDataset(titleTdbDirectory);
-        model = propertyDataset.getDefaultModel();;
+        model = propertyDataset.getDefaultModel();
+
+        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph("http://fragments.dbpedia.org/2014/en");
+        linkedDataModel = ModelFactory.createModelForGraph(ldfg);
+    }
+
+    public ResultSet executeQueryFragments(String queryString) {
+        Query query = QueryFactory.create(prefixes + queryString);
+        //QueryExecution qexec = QueryExecutionFactory.create(query, model);
+        QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+
+        return qexec.execSelect();
     }
 
     public ResultSet executeQuery(String queryString) {
 
         Query query = QueryFactory.create(prefixes + queryString);
         QueryExecution qe = QueryExecutionFactory.create(query, model);
+
+        numberOfQueries++;
 
         return qe.execSelect();
     }

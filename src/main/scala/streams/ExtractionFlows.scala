@@ -104,13 +104,17 @@ object ExtractionFlows {
 
       timeFuture("duration for getting types:") {
         extractor.getTypesMap(page.getEntityUris) map { typesMap =>
-          if (typesMap.isEmpty) { println(s"${page.title} is empty!") }
+          if (typesMap.isEmpty) { println(s"${page.title} contains no types!") }
           WikiListResult(page, typesMap, Map[Symbol, Map[String, Double]]().empty)
         }
       }
     }
   }
+  /*
+  def buildOntologyTree()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
 
+  }
+  */
   def computeTfIdf()(implicit materializer: Materializer): Flow[WikiListResult, WikiListResult, Unit] = {
     val rating = new TfIdfRating
     Flow[WikiListResult].mapAsyncUnordered(parallelCount) { result =>

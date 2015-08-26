@@ -5,10 +5,12 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import dataFormats.{WikiListResult, WikiFusedResult}
 import dump.RecordReaderWrapper
+import fragmentsWrapper.QueryWrapper
 import it.cnr.isti.hpc.wikipedia.article.Article
 
 import implicits.ConversionImplicits._
 import streams.{RdfWriter, ExtractionFlows, JsonWriter}
+import tableExtraction.{RDFTable, TableExtractor}
 import util.LoggingUtils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -73,9 +75,15 @@ object FlowSpike {
       res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "data/ttl/scientists.ttl") }
       val json = JsonWriter.createResultJson(res)
       JsonWriter.write(json, "data/results/random1000-5.json")
+      println("Number of given rows: " + TableExtractor.overallGivenRows)
+      println("Number of parsed entities: " +TableExtractor.tableEntitiesCount)
+      println(QueryWrapper.numberOfQueries)
+
+      println("Number of given rows into tables: " + RDFTable.incomingRows)
+      println("Number of used rows: " + RDFTable.usedRows)
+
       materializer.shutdown()
       actorSys.shutdown()
     }
-
   }
 }

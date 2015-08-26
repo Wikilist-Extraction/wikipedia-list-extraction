@@ -107,10 +107,6 @@ public class PredicateMatcher {
         String literal = literalEntry.getRawContent();
         //String name = helper.getRedirectedStringIfNeeded(entry);
         String name = entry.getLink();
-        if (name == null || Objects.equals(literal, "")) {
-            System.out.println("one entry was empty");
-            return new ArrayList<>();
-        }
         name = name.replace(" ", "_");
         predicates = helper.buildPredicateBetweenEntityAndLiteral(name, literal);
         return getLabelsForPredicates(predicates);
