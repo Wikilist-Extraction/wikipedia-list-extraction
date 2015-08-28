@@ -97,3 +97,5 @@ db/*
 src/main/resources/typeCount.csv
 results/*
 data/results/*
+
+src/main/resources/application.conf

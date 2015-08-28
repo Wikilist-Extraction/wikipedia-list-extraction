@@ -1,0 +1,18 @@
+io {
+  inputFile = "data/input.json"
+  jsonOutput = "results/output.json"
+  rdfMembershipOutput = "results/membership.ttl"
+  rdfTypesOutput = "results/types.ttl"
+}
+
+fusing {
+  weights {
+    tfIdf = 1
+    textEvidence = 1
+  }
+}
+filtering {
+  thresholds {
+    final = 0.7
+  }
+}

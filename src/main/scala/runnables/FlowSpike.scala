@@ -15,7 +15,7 @@ import util.LoggingUtils._
 import scala.collection.immutable.TreeMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
-
+import util.Config._
 
 /**
  * Created by nico on 05/07/15.
@@ -24,7 +24,7 @@ object FlowSpike extends LazyLogging {
   def main(args: Array[String]) {
 
 
-    val filename = args(0)
+    val filename = config.getString("io.inputFile")
     val decider: Supervision.Decider = {
       case _ => Supervision.Resume
     }
@@ -66,9 +66,9 @@ object FlowSpike extends LazyLogging {
     }
 
     resFuture foreach { res =>
-//      res foreach { fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, "results/random10000.ttl") }
+      res foreach (fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, config.getString("io.rdfTypesOutput")))
       val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, "results/random2000-result.json")
+      JsonWriter.write(json, config.getString("io.jsonOutput"))
       materializer.shutdown()
       actorSys.shutdown()
     }

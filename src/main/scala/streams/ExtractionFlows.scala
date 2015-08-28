@@ -17,7 +17,7 @@ import util.LoggingUtils._
 import implicits.ConversionImplicits._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
+import util.Config._
 
 /**
  * Created by nico on 14/07/15.
@@ -26,11 +26,11 @@ object ExtractionFlows extends LazyLogging {
   val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
-  val filterStrategy = new ThresholdFilterStrategy(0.7d)
+  val filterStrategy = new ThresholdFilterStrategy(config.getDouble("filtering.thresholds.final"))
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())
-    .via(storeMembershipStatementsInFile("results/membership.ttl"))
+    .via(storeMembershipStatementsInFile(config.getString("io.rdfMembershipOutput")))
     .via(getTypesMap())
     .via(filterEmptyTypes())
     .via(computeTfIdf())
