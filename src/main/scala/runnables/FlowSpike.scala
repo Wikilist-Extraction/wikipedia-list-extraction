@@ -45,29 +45,8 @@ object FlowSpike extends LazyLogging {
 //      resultTypes + (result.page.title -> result.types.keys.toList)
 //    }
 
-//    val tfIdfSink = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) =>
-//      result :: list
-//    }
-
     // val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
      val printSink = Sink.foreach[WikiFusedResult](result => println(s"finished: ${result.page.title} count:${result.types}"))
-
-
-//    val typeSinkTfIdf = Sink.fold[List[WikiListResult], WikiListResult](List()) { (list, result) => result :: list }
-//
-//    val gtf = Source(() => articles)
-//      .via(ExtractionFlows.tfIdfFlow())
-//      .runWith(typeSinkTfIdf)
-//
-//
-//    timeFuture("completeDuration")(gtf)
-//
-//    gtf foreach { res =>
-//      val json = JsonWriter.createTfIdfJson(res)
-//      JsonWriter.write(json, "data/results/scientists-tfidf.json")
-//      materializer.shutdown()
-//      actorSys.shutdown()
-//    }
 
     val countSink = Sink.fold[Int, WikiFusedResult](0)((acc, _) => { println("finished list: " + (acc + 1)); acc + 1 })
     val typeSink = Sink.fold[List[WikiFusedResult], WikiFusedResult](List()) { (list, result) => result :: list }
