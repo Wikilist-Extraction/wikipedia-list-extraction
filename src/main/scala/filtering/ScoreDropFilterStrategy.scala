@@ -6,7 +6,8 @@ import dataFormats.WikiFusedResult
  * Created by nico on 28/08/15.
  */
 class ScoreDropFilterStrategy extends ScoreFilterStrategy {
-  override def filterScores(result: WikiFusedResult): List[String] = {
+
+  def findDrop(result: WikiFusedResult): List[String] = {
     // idea: find the biggest gap between 2 scorings and use the lower scoredType as threshold
     //val scoredTypeCount = scoredTypes.size
     //var scoreDistanceSum = 0.0 //scoredTypes.foldLeft(0.0) { (acc, scoredType) => acc + scoredType._2 }
@@ -33,11 +34,11 @@ class ScoreDropFilterStrategy extends ScoreFilterStrategy {
 
     // val scoreDistanceAvg = scoreDistanceSum / scoredTypeCount
 
-    if (minScore < maxScoreDistance) {
-      result.types.filter { case (_, score) => score > maxScoredType._2 }.keys.toList
-    } else {
-      result.types.keys.toList
-    }
+    //    if (minScore < maxScoreDistance) {
+    result.types.filter { case (_, score) => score > maxScoredType._2 }.keys.toList
+    //    } else {
+    //      result.types.keys.toList
+    //    }
 
     /*
     // idea: threshold all types below olw:Thing score, which should be the most unspecific thing
@@ -49,5 +50,12 @@ class ScoreDropFilterStrategy extends ScoreFilterStrategy {
 
     scoredTypes.filter { case (_, score) => score >= owlThingScore }
     */
+  }
+
+  override def filterScores(result: WikiFusedResult): List[String] = {
+    if (allTypesCorrect(result))
+      result.wikiListScores.getTypes
+    else
+      findDrop(result)
   }
 }
