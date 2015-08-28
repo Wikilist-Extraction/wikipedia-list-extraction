@@ -3,7 +3,7 @@ package ratings
 import java.io.InputStream
 
 import akka.stream.Materializer
-import dataFormats.WikiListResult
+import dataFormats.WikiListScores
 import sparql.JenaSparqlWrapper
 
 import scala.async.Async._
@@ -81,7 +81,7 @@ class TfIdfRating extends JenaSparqlWrapper with RatingResult {
     futureOfList.map( _.toMap)
   }
 
-  def getRating(result: WikiListResult)(implicit materializer: Materializer): Future[Map[String, Double]] = {
+  def getRating(result: WikiListScores)(implicit materializer: Materializer): Future[Map[String, Double]] = {
     getTfIdfScores(result.types)
   }
 }

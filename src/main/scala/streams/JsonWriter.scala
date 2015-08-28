@@ -2,7 +2,7 @@ package streams
 
 import java.io.FileWriter
 
-import dataFormats.{WikiFusedResult, WikiListResult}
+import dataFormats.{WikiListResult, WikiListScores}
 import ratings.TfIdfRating
 import spray.json.{JsArray, JsNumber, JsObject, JsString}
 import util.UriUtils
@@ -19,7 +19,7 @@ object JsonWriter {
 //    )
 //  }
 
-  def createResultJson(results: List[WikiFusedResult]): JsObject = {
+  def createResultJson(results: List[WikiListResult]): JsObject = {
     JsObject(
       "lists" -> JsObject(results.map { result =>
         UriUtils.encodeWikistyle(result.page.title) -> JsArray((result.types map (JsString(_))).toVector)
@@ -31,7 +31,7 @@ object JsonWriter {
     JsObject(tfIdfMap.mapValues(JsNumber(_)))
   }
 
-  def createTfIdfJson(results: List[WikiListResult]): JsObject = {
+  def createTfIdfJson(results: List[WikiListScores]): JsObject = {
 
     val objects = results.map { result =>
       val tfIdfMap = result.scores.get(TfIdfRating.name).get

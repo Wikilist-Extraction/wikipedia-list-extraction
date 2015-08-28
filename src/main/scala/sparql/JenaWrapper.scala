@@ -1,11 +1,10 @@
 package sparql
 
-import java.util.concurrent.TimeoutException
-
 import com.hp.hpl.jena.query._
 import com.hp.hpl.jena.rdf.model.ModelFactory
 import com.hp.hpl.jena.shared.{Lock, PrefixMapping}
 import com.hp.hpl.jena.tdb.TDBFactory
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.jena.riot.RDFDataMgr
 import org.linkeddatafragments.model.LinkedDataFragmentGraph
 
@@ -102,18 +101,27 @@ trait JenaSparqlWrapper extends JenaWrapper {
   }
 }
 
-trait JenaDumpWrapper extends JenaWrapper {
+trait JenaDumpWrapper extends JenaWrapper with LazyLogging {
   val tdbDirectory: String
 
   lazy val dataset = TDBFactory.createDataset(tdbDirectory)
   lazy val model = dataset.getDefaultModel
 
   def queryDumpWithUri(queryString: String, uri: String): Future[List[QuerySolution]] = {
-    val pss = createParameterizedQuery(queryString)
-    pss.setIri("uri", uri)
-    addStandardPrefixes(pss)
-    val qe = createDumpQueryExecution(pss)
-    execQuery(qe)
+    val qe = Try {
+      val pss = createParameterizedQuery(queryString)
+      pss.setIri("uri", uri)
+      addStandardPrefixes(pss)
+      createDumpQueryExecution(pss)
+    }
+    qe
+      .map(execQuery)
+      .recover {
+        case e: com.hp.hpl.jena.query.QueryParseException =>
+          logger.error(s"Query failed for URI: $uri with exception: ${e.toString}")
+          Future.failed(new IllegalArgumentException)
+      }
+      .getOrElse(Future.failed(new Exception))
   }
 
   def createDumpQueryExecution(query: Query): QueryExecution = QueryExecutionFactory.create(query, model)

@@ -8,7 +8,7 @@ import com.hp.hpl.jena.datatypes.RDFDatatype
 import com.hp.hpl.jena.graph.{Node, Triple, Graph}
 import com.hp.hpl.jena.rdf.model._
 import com.hp.hpl.jena.shared.{Lock, Command, ReificationStyle, PrefixMapping}
-import dataFormats.{WikiFusedResult, WikiListPage}
+import dataFormats.{WikiListResult, WikiListPage}
 import org.apache.jena.riot.{RDFFormat, RDFDataMgr}
 
 /**
@@ -22,7 +22,7 @@ class RdfWriter {
 
   private def addMembershipStatement(listUri: String, entityUri: String, fileName: String, model: Model) = {
     val subject = ResourceFactory.createResource(entityUri)
-    val predicate = ResourceFactory.createProperty("dbpedia-lists", "memberOf")
+    val predicate = ResourceFactory.createProperty("http://dbpedia.org/ontology/", "memberOf")
     val rdfObject = ResourceFactory.createResource(listUri)
     addStatement(subject, predicate, rdfObject, model)
   }
@@ -42,7 +42,7 @@ class RdfWriter {
     writeToFile(fileName, model)
   }
 
-  def addTypeStatementsFor(result: WikiFusedResult, fileName: String) = {
+  def addTypeStatementsFor(result: WikiListResult, fileName: String) = {
     val model = ModelFactory.createDefaultModel()
     result.page.listMembers.foreach { entity =>
       result.types.foreach { typeUri =>

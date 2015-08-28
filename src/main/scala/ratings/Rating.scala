@@ -1,7 +1,7 @@
 package ratings
 
 import akka.stream.Materializer
-import dataFormats.WikiListResult
+import dataFormats.WikiListScores
 
 import scala.concurrent.Future
 
@@ -16,6 +16,6 @@ trait Rating {
 trait RatingResult {
   // rating from
   // type name -> score
-  def getRating(wikiListResult: WikiListResult)(implicit materializer: Materializer): Future[Map[String, Double]]
+  def getRating(wikiListResult: WikiListScores)(implicit materializer: Materializer): Future[Map[String, Double]]
 }
 
