@@ -11,6 +11,7 @@ fusing {
     textEvidence = 1
   }
 }
+
 filtering {
   thresholds {
     final = 0.7
