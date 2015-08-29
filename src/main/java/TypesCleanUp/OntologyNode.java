@@ -1,11 +1,12 @@
 package TypesCleanUp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OntologyNode {
     private OntologyNode parent;
     private String resource;
-    private List<OntologyNode> children;
+    private List<OntologyNode> children = new ArrayList<>();
 
     public OntologyNode getParent() {
         return parent;
@@ -20,9 +21,12 @@ public class OntologyNode {
         this.parent = parent;
     }
     public boolean hasParent() {
-        return parent == null;
+        return parent != null;
     }
     public String getResource() {
         return this.resource;
+    }
+    public void addChild(OntologyNode child) {
+        this.children.add(child);
     }
 }
