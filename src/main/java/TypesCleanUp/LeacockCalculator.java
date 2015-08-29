@@ -36,7 +36,7 @@ public class LeacockCalculator {
         //calc.buildOntologyTree();
         calc.buildOntologyTreeFromFile();
         String s =  "http://dbpedia.org/ontology/NaturalPlace";
-        String s2 = "http://dbpedia.org/ontology/Person";
+        String s2 = "http://dbpedia.org/ontology/Place";
         Map<String, Integer> test = new HashMap<>();
         test.put("http://dbpedia.org/ontology/Activity", 13);
         test.put("http://dbpedia.org/ontology/Person", 8);
@@ -184,7 +184,7 @@ public class LeacockCalculator {
         OntologyNode second = nodes.get(secondResource);
         Integer length = getDistance(first, second);
         Integer maxDepth = Math.max(getDepth(first), getDepth(second));
-        return (- Math.log(length / 2 * maxDepth));
+        return (- Math.log((double) length / 2 * maxDepth));
     }
 
     private int getDepth(OntologyNode node) {
