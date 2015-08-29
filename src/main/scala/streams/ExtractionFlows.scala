@@ -19,6 +19,7 @@ import util.LoggingUtils._
 import implicits.ConversionImplicits._
 import scala.concurrent.ExecutionContext.Implicits.global
 import util.Config._
+import scala.collection.JavaConversions._
 
 /**
  * Created by nico on 14/07/15.
@@ -132,7 +133,12 @@ object ExtractionFlows extends LazyLogging {
   def checkTypeSpreading(): Flow[WikiListScores, WikiListScores, Unit] = {
     val leacock = new LeacockCalculator
     Flow[WikiListScores].mapConcat { result =>
-      if (leacock.areTypesSpreaded(result.types))
+
+      val r = result.types map {
+        case (s, i) => (s, i.asInstanceOf[java.lang.Integer])
+      }
+
+      if (leacock.areTypesSpreaded(r))
         List()
       else
         List(result)

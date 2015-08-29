@@ -25,7 +25,6 @@ object ConversionImplicits {
     list.asJava
   }
 
-  implicit def scalaIntMaptoJavaIntegerMap(m: Map[String, Int]): java.util.Map[String, java.lang.Integer] = mapAsJavaMapConverter(m).asInstanceOf[java.util.Map[String, java.lang.Integer]]
 
   implicit def javaToScalaInt(d: java.lang.Integer): Int = d.intValue
 

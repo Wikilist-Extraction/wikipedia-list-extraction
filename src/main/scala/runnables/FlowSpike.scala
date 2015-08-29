@@ -28,7 +28,7 @@ object FlowSpike extends LazyLogging {
 
     val filename = config.getString("io.inputFile")
     val decider: Supervision.Decider = {
-      case _ => Supervision.Resume
+      case _ => Supervision.Stop
     }
 
     implicit val actorSys = ActorSystem("wikilist-extraction")
@@ -63,7 +63,7 @@ object FlowSpike extends LazyLogging {
       case e => {
         logger.error(e.toString)
         logger.error(e.getCause.toString)
-//        e.printStackTrace()
+        e.printStackTrace()
       }
     }
 
