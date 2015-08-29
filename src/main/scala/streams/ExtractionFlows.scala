@@ -11,7 +11,7 @@ import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
 import it.cnr.isti.hpc.wikipedia.article.Article
 import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
-import filtering.{ThresholdFilterStrategy, ScoreFilter, ResultFuser, Scorer}
+import filtering._
 import tableExtraction.TableExtractor
 import util.LoggingUtils._
 import implicits.ConversionImplicits._
@@ -26,7 +26,8 @@ object ExtractionFlows extends LazyLogging {
   val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
-  val filterStrategy = new ThresholdFilterStrategy(config.getDouble("filtering.thresholds.final"))
+//  val filterStrategy = new ThresholdFilterStrategy(config.getDouble("filtering.thresholds.final"))
+  val filterStrategy = new ScoreDropFilterStrategy
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())

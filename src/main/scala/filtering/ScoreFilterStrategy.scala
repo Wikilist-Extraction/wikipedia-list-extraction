@@ -1,12 +1,13 @@
 package filtering
 
 import dataFormats.WikiFusedResult
+import util.Config._
 
 /**
  * Created by nico on 28/08/15.
  */
 trait ScoreFilterStrategy {
-  val allTypesCorrectThreshold = 2
+  val allTypesCorrectThreshold = config.getDouble("filtering.thresholds.allTypesCorrect")
 
   def mean(xs: List[Int]): Double = xs match {
     case ys => ys.sum / ys.size.toDouble

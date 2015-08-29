@@ -9,8 +9,21 @@ import scala.annotation.tailrec
  * Created by nico on 28/08/15.
  */
 class KMeansFilter extends ScoreFilterStrategy {
+  import KMeans._
+
   def getTypesWithKMeans(result: WikiFusedResult): List[String] = {
-    List()
+
+    implicit def g = new VectorSpace[(Double, Double)] {
+
+      override def distance(x: (Double, Double), y: (Double, Double)): (Double, Double) = (scala.math.abs(x._1 - y._1), 0d)
+
+      override def centroid(ps: Seq[(Double, Double)]): (Double, Double) = (ps.map(_._1).sum / ps.size.toDouble, 0d)
+    }
+
+    def assToPoint(ass: (String, Double)): (Double, Double) = (ass._2, 0d)
+
+    val clusters = cluster[(String, Double), (Double, Double)]((ass: (String, Double)) => (ass._2, 0d))(result.types.toList, 2)(g)
+    clusters.maxBy(_.toMap.values.max).toMap.keys.toList
   }
 
   override def filterScores(result: WikiFusedResult): List[String] = {
@@ -23,16 +36,9 @@ class KMeansFilter extends ScoreFilterStrategy {
 }
 
 trait VectorSpace[A] {
-  def distance(x: A, y: A): Double
+  def distance(x: A, y: A): A
 
   def centroid(ps: Seq[A]): A
-}
-
-class DoubleVectorSpace extends VectorSpace[Double] {
-
-  override def distance(x: Double, y: Double): Double = scala.math.abs(x - y)
-
-  override def centroid(ps: Seq[Double]): Double = ps.sum / ps.size.toDouble
 }
 
 object KMeans {
