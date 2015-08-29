@@ -34,8 +34,8 @@ public class QueryWrapper {
 
     public ResultSet executeQueryFragments(String queryString) {
         Query query = QueryFactory.create(prefixes + queryString);
-        //QueryExecution qexec = QueryExecutionFactory.create(query, model);
-        QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+        QueryExecution qexec = QueryExecutionFactory.create(query, linkedDataModel);
+        //QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
 
         return qexec.execSelect();
     }
