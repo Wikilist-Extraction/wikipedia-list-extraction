@@ -24,6 +24,10 @@ public class LeacockCalculator {
         buildSubnodes(node);
     }
 
+    public Boolean areTypesSpreaded(Map<String, Integer> typesMap) {
+        return false;
+    }
+
     private void buildSubnodes(OntologyNode node) {
         List<OntologyNode> children = getSubclasses(node.getResource());
         nodes.put(node.getResource(), node);

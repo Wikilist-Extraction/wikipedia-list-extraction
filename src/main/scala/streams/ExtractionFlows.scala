@@ -1,6 +1,7 @@
 package streams
 
 
+import TypesCleanUp.LeacockCalculator
 import dataFormats._
 import dump.{TableArticleParser, ListArticleParser}
 import akka.stream.{FlowShape, Materializer}
@@ -27,6 +28,7 @@ object ExtractionFlows {
     .via(convertArticle())
     .via(storeMembershipStatementsInFile("results/ttl/membership.ttl"))
     .via(getTypesMap())
+    .via(checkTypeSpreading())
     .via(computeTfIdf())
     .via(computeTextEvidence())
     .via(fuseResults())
@@ -110,11 +112,17 @@ object ExtractionFlows {
       }
     }
   }
-  /*
-  def buildOntologyTree()(implicit materializer: Materializer): Flow[WikiListPage, WikiListResult, Unit] = {
 
+  def checkTypeSpreading(): Flow[WikiListResult, WikiListResult, Unit] = {
+    val leacock = new LeacockCalculator
+    Flow[WikiListResult].mapConcat { result =>
+      if (leacock.areTypesSpreaded(result.types))
+        List()
+      else
+        List(result)
+    }
   }
-  */
+
   def computeTfIdf()(implicit materializer: Materializer): Flow[WikiListResult, WikiListResult, Unit] = {
     val rating = new TfIdfRating
     Flow[WikiListResult].mapAsyncUnordered(parallelCount) { result =>
