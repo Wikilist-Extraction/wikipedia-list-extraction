@@ -5,6 +5,12 @@ io {
   rdfTypesOutput = "results/types.ttl"
 }
 
+leacock {
+  forEachThreshold = -2.5
+  meanThreshold = -2
+  useMeanThreshold = true
+}
+
 fusing {
   weights {
     tfIdf = 1

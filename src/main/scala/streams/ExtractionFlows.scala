@@ -87,7 +87,7 @@ object ExtractionFlows extends LazyLogging {
             case _ => None
           }
 
-          println(s"built final page for ${article.getTitleInWikistyle}")
+          logger.info(s"built final page for ${article.getTitleInWikistyle}")
 
           finalPage.toList
         } catch {
@@ -139,8 +139,11 @@ object ExtractionFlows extends LazyLogging {
         case (s, i) => (s, i.asInstanceOf[java.lang.Integer])
       }
 
-      if (leacock.areTypesSpreaded(r))
+      if (leacock.areTypesSpreaded(r)) {
+        logger.info(s"Filtered out due to type spreading: ${result.page.title}")
+        println(s"Filtered out due to type spreading: ${result.page.title}")
         List()
+      }
       else
         List(result)
     }
@@ -178,7 +181,7 @@ object ExtractionFlows extends LazyLogging {
 
   def fuseResults(): Flow[WikiListScores, WikiFusedResult, Unit] = {
     Flow[WikiListScores].map { result =>
-      println(s"fusing result for ${result.page.title}")
+      logger.info(s"fusing result for ${result.page.title}")
       time("duration for computing fused results:") {
         ResultFuser.fuseResults(result)
       }

@@ -13,8 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import util.Config;
+
 public class LeacockCalculator {
     private  Map<String, OntologyNode> nodes = new HashMap<>();
+
+    final double leacockThreshold = Config.config().getDouble("leacock.forEachThreshold");
+    final double meanThreshold = Config.config().getDouble("leacock.meanThreshold");
+    final Boolean useMeanThreshold = Config.config().getBoolean("leacock.useMeanThreshold");
 
 //    private  QueryWrapper wrapper = new QueryWrapper();
 
@@ -91,9 +97,10 @@ public class LeacockCalculator {
 
     public Boolean areTypesSpreaded(Map<String, Integer> typesMap) {
         List<String> types = new ArrayList<>(typesMap.keySet());
-        System.out.println("I get called");
         Integer relevanceThreshold = findRelevanceThreshold(typesMap);
-        final double leacockThreshold = -2.5;
+
+        double sum = 0d;
+        double count = 0;
         for (int i = 0; i < types.size() - 1; i++) {
             for (int j = i + 1; j < types.size(); j++) {
                 String firstType = types.get(i);
@@ -105,15 +112,26 @@ public class LeacockCalculator {
                     continue;
                 }
                 try {
-                    if (this.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
+                    double dist = this.calculateLeacockChodorow(firstType, secondType);
+                    System.out.println(dist);
+                    sum += dist;
+                    count++;
+                    if (!useMeanThreshold && dist < leacockThreshold) {
                         return true;
                     }
                 } catch (Exception e) {
-                    System.out.println("could not calculate Leacock distance from: " + firstType + " and " + secondType);
+//                    System.out.println("could not calculate Leacock distance from: " + firstType + " and " + secondType);
                 }
 
             }
         }
+
+        if (useMeanThreshold) {
+            double avgDist = sum / count;
+            System.out.println(sum + " count: " + count);
+            return avgDist < meanThreshold;
+        }
+
         return false;
     }
 
