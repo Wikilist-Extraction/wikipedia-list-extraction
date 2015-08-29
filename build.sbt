@@ -33,6 +33,8 @@ libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.2",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.3",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+  "com.typesafe" % "config" % "1.3.0",
   "org.linkeddatafragments" % "ldf-client" % "0.1-SNAPSHOT"
     exclude("com.hp.hpl.jena", "jena"),
   "it.cnr.isti.hpc" % "json-wikipedia" % "1.0.2" //changing()

@@ -40,8 +40,10 @@ case class TableCell(entry : Entry)
 // page - wikipedia parsed result
 // types - type name --> type count
 // scores - approach name (tfidf, text evidence, ...) --> (type name --> type score)
-case class WikiListResult(page: WikiListPage, types: Map[String, Int], scores: Map[Symbol, Map[String, Double]]) {
+case class WikiListScores(page: WikiListPage, types: Map[String, Int], scores: Map[Symbol, Map[String, Double]]) {
   def getTypes: List[String] = types.keys.toList
 }
 
-case class WikiFusedResult(page: WikiListPage, types: List[String])
+case class WikiFusedResult(wikiListScores: WikiListScores, types: Map[String, Double])
+
+case class WikiListResult(page: WikiListPage, types: List[String])

@@ -1,6 +1,6 @@
-package scorer
+package filtering
 
-import dataFormats.{WikiListPage, WikiListResult}
+import dataFormats.{WikiListPage, WikiListScores}
 import ratings.{TfIdfRating, TextEvidenceRating}
 
 /**
@@ -19,9 +19,10 @@ object Scorer {
     'tfIdf -> 1,
     'textEvidence -> 1
   )
+
   val weightsSum = weights.foldLeft(0.0) { (acc, keyValue) => acc + keyValue._2 }
 
-  val owlThingType = "http://www.w3.org/2002/07/owl#Thing"
+//  val owlThingType = "http://www.w3.org/2002/07/owl#Thing"
 
   def normalizeScores(scoredTypes: Map[String, Double]): Map[String, Double] = {
     val highestScore = scoredTypes.values.max
@@ -37,15 +38,52 @@ object Scorer {
     allTypes.foldLeft(emptyMap) { (acc, typeName) => acc + (typeName -> Map[Symbol, Double]()) }
   }
 
-  def fuseResult(result: WikiListResult): List[String] = {
+  def fuseResult(result: WikiListScores): List[String] = {
     val page: WikiListPage = result.page
     val allTypes: Map[String, Int] = result.types
-    val scores: Map[Symbol, Map[String,Double]] = result.scores
+    val scores: Map[Symbol, Map[String, Double]] = result.scores
+
+    if (allTypes.isEmpty || scores.isEmpty) {
+      return List[String]()
+    }
 
     scores
       .map { case (algorithmName, scoredTypes) =>
         val mutatedScores = algorithmName match {
           case 'tfIdf => {
+            // idea: find the biggest gap between 2 scorings and use the lower scoredType as threshold
+            //val scoredTypeCount = scoredTypes.size
+            //var scoreDistanceSum = 0.0 //scoredTypes.foldLeft(0.0) { (acc, scoredType) => acc + scoredType._2 }
+
+            val sortedScoredTypes = scoredTypes
+              .toList
+              .sortBy({ case(_, score) => -score })
+
+            var oldScoredType: (String, Double) = sortedScoredTypes.head
+            var maxScoredType: (String, Double) = sortedScoredTypes.head
+            var maxScoreDistance: Double = 0.0
+            val minScore = sortedScoredTypes.last._2
+
+            sortedScoredTypes.foreach({ case (typeName, score) =>
+              val oldScore = oldScoredType._2
+              //scoreDistanceSum += oldScore - score
+              if (oldScore - score >= maxScoreDistance) {
+                maxScoreDistance = oldScore - score
+                maxScoredType = (typeName, score)
+              }
+
+              oldScoredType = (typeName, score)
+            })
+
+            // val scoreDistanceAvg = scoreDistanceSum / scoredTypeCount
+
+            if (minScore < maxScoreDistance) {
+              scoredTypes.filter { case (_, score) => score > maxScoredType._2 }
+            } else {
+              scoredTypes
+            }
+
+            /*
             // idea: threshold all types below olw:Thing score, which should be the most unspecific thing
             val owlThingScoreOption: Option[(String, Double)] = scoredTypes.find { case (typeName, _) => typeName.equals(owlThingType) }
             val owlThingScore = owlThingScoreOption match {
@@ -54,6 +92,7 @@ object Scorer {
             }
 
             scoredTypes.filter { case (_, score) => score >= owlThingScore }
+            */
           }
           case _ => scoredTypes
         }

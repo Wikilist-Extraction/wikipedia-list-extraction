@@ -1,6 +1,7 @@
 package runnables
 
 import dump.XMLDumpCreator
+import scala.io.Source
 
 /**
  * Created by nico on 16/07/15.
@@ -13,5 +14,6 @@ object XmlDumpCreator {
     val dumpCreator = new XMLDumpCreator
 
     dumpCreator.readFromAndWriteTo(from, to)
+    System.exit(0)
   }
 }

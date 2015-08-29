@@ -11,13 +11,9 @@ import scala.concurrent.duration._
  */
 object XmlToJsonConverter {
   def main (args: Array[String]) {
-//    val xmlFile = args(0)
-    val listsFile = args(0)
+    val xmlFile = args(0)
     val jsonFile = args(1)
-    val xmlFile = "/tmp/xmlDump.xml"
-    val dumpCreator = new XMLDumpCreator()
 
-    val xmlFileFut = dumpCreator.readFromAndWriteTo(listsFile, xmlFile)
     val wap: WikipediaArticleReader  = new WikipediaArticleReader(xmlFile, jsonFile, "en")
 
     try {

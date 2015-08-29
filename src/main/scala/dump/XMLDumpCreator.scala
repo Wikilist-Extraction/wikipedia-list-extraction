@@ -3,8 +3,6 @@ package dump
 import java.io.FileWriter
 
 import dispatch._
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.xml._
 
@@ -54,14 +52,16 @@ object XMLDumpCreator {
         </namespaces>
       </siteinfo>
     </mediawiki>
+
+  //  val exportUrl = "http://en.wikipedia.org/w/index.php"
+  val exportUrl = "http://en.wikipedia.org//wiki/Special:Export"
+
+  val subDumpSize = 1000
 }
 
 class XMLDumpCreator {
   import XMLDumpCreator._
-//  val exportUrl = "http://en.wikipedia.org/w/index.php"
-  val exportUrl = "http://en.wikipedia.org//wiki/Special:Export"
 
-  val subDumpSize = 1000
 
   def postExport = url(exportUrl)
     .POST
@@ -77,15 +77,14 @@ class XMLDumpCreator {
   def writeToFile(fileName: String, dump: Node) = {
     val writer = new FileWriter(fileName)
     writer.write(dump.toString())
+    writer.flush()
     writer.close()
   }
 
   def queryWikipedia(pages: List[String]): Future[Node] = {
     val req = postExport
       .addParameter("pages", pages.mkString("\n"))
-    val r = Http(req OK as.xml.Elem)
-//    r foreach println
-    r
+    Http(req OK as.xml.Elem)
   }
 
   def addNodeTo(root: Node, newChild: Node): Node = {
@@ -99,21 +98,18 @@ class XMLDumpCreator {
   def getDump(fileName: String): Future[Node] = {
     val pages = readFile(fileName)
     val subDumps = pages.grouped(subDumpSize).toList map queryWikipedia
+    var counter = 0
+    subDumps foreach (_ foreach ( _ => {counter += 1; println("completed request: ", counter)}))
 
     Future.sequence(subDumps).map { dumps =>
-      dumps.fold(emptyDumpXml) { (acc, subDump) =>
-//        println("subDump: " + subDump + "\n\n")
-        val pageElems = subDump \\ "page"
-//        println(pageElems)
-        pageElems.fold(acc)(addNodeTo)
-      }
+      dumps
+        .flatMap(_ \\ "page")
+        .fold(emptyDumpXml)(addNodeTo)
     }
   }
 
   def readFromAndWriteTo(fileNameFrom: String, fileNameTo: String) = {
-    val dump = getDump(fileNameFrom)
-    dump foreach(_ => println("success"))
-    dump foreach (writeToFile(fileNameTo, _))
-    Await.ready(dump, Duration.Inf)
+    val dump = getDump(fileNameFrom)()
+    writeToFile(fileNameTo, dump)
   }
 }
