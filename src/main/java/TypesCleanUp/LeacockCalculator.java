@@ -14,15 +14,16 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class LeacockCalculator {
-    private static Map<String, OntologyNode> nodes = new HashMap<>();
-    private static QueryWrapper wrapper = new QueryWrapper();
+    private  Map<String, OntologyNode> nodes = new HashMap<>();
+    private  QueryWrapper wrapper = new QueryWrapper();
+
 
 
     public static void main(String[] args) {
         LeacockCalculator calc = new LeacockCalculator();
         //calc.buildOntologyTree();
         calc.buildOntologyTreeFromFile();
-        String s =  "http://dbpedia.org/ontology/Natural-Person";
+        String s =  "http://dbpedia.org/ontology/Activity";
         String s2 = "http://dbpedia.org/ontology/Person";
         System.out.println(calc.calculateLeacockChodorow(s, s2));
     }
@@ -34,7 +35,7 @@ public class LeacockCalculator {
         buildSubnodes(node);
     }
 
-    public static void buildOntologyTreeFromFile() {
+    public void buildOntologyTreeFromFile() {
         Path path = Paths.get("ontology-seperated.txt");
         try {
             List<String> ontologyRelations = Files.readAllLines(path);
@@ -44,7 +45,7 @@ public class LeacockCalculator {
         }
     }
 
-    private static void buildTreeFromLines(List<String> statements) {
+    private void buildTreeFromLines(List<String> statements) {
         Set<String> allResources = new HashSet<>();
         for (String stat : statements) {
             String[] splittedStat = stat.split("\\$");
@@ -74,6 +75,7 @@ public class LeacockCalculator {
 
     public Boolean areTypesSpreaded(Map<String, Integer> typesMap) {
         List<String> types = new ArrayList<>(typesMap.keySet());
+        LeacockCalculator calc = new LeacockCalculator();
         Integer relevanceThreshold = findRelevanceThreshold(typesMap);
         final double leacockThreshold = -2.5;
         for (int i = 0; i < types.size() - 1; i++) {
@@ -83,8 +85,8 @@ public class LeacockCalculator {
                 if (typesMap.get(firstType) < relevanceThreshold || typesMap.get(secondType) < relevanceThreshold) {
                     continue;
                 }
-                if (LeacockCalculator.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
-                    return true; 
+                if (calc.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
+                    return true;
                 }
             }
         }
@@ -96,7 +98,7 @@ public class LeacockCalculator {
         return maximum / 5;
     }
 
-    private static void buildSubnodes(OntologyNode node) {
+    private void buildSubnodes(OntologyNode node) {
         List<OntologyNode> children = getSubclasses(node.getResource());
         nodes.put(node.getResource(), node);
         node.setChildren(children);
@@ -106,7 +108,7 @@ public class LeacockCalculator {
         }
     }
 
-    private static List<OntologyNode> getSubclasses(String resource) {
+    private List<OntologyNode> getSubclasses(String resource) {
         String queryString;
         if (resource.contains("http")) {
             String escapedResource = "<" + resource + ">";
@@ -133,7 +135,7 @@ public class LeacockCalculator {
     }
 
 
-    public static Double calculateLeacockChodorow(String firstResource, String secondResource) {
+    public Double calculateLeacockChodorow(String firstResource, String secondResource) {
         OntologyNode first = nodes.get(firstResource);
         OntologyNode second = nodes.get(secondResource);
         Integer length = getDistance(first, second);
@@ -141,11 +143,11 @@ public class LeacockCalculator {
         return (- Math.log(length / 2 * maxDepth));
     }
 
-    private static int  getDepth(OntologyNode node) {
+    private int  getDepth(OntologyNode node) {
         return getAncestors(node).size();
     }
 
-    private static int  getDistance(OntologyNode first, OntologyNode second) {
+    private int  getDistance(OntologyNode first, OntologyNode second) {
         List<String> firstAncestors = getAncestors(first);
         List<String> secondAncestors = getAncestors(second);
         for (String ancestor : firstAncestors) {
@@ -180,7 +182,7 @@ public class LeacockCalculator {
         return list;
     }
 
-    private static List<String> getAncestors(OntologyNode first) {
+    private List<String> getAncestors(OntologyNode first) {
         List<String> ancestors = new ArrayList<>();
         OntologyNode  current = first;
         ancestors.add(current.getResource());
