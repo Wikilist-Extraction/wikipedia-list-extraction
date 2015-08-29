@@ -12,7 +12,6 @@ import com.hp.hpl.jena.query.*;
 public class QueryWrapper {
 
     private Model model;
-    private Model linkedDataModel;
 
     public static int numberOfQueries = 0;
 
@@ -27,18 +26,16 @@ public class QueryWrapper {
         String titleTdbDirectory = "db/properties";
         Dataset propertyDataset = TDBFactory.createDataset(titleTdbDirectory);
         model = propertyDataset.getDefaultModel();
-
-//        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph("http://fragments.dbpedia.org/2014/en");
-//        linkedDataModel = ModelFactory.createModelForGraph(ldfg);
     }
 
+    /*
     public ResultSet executeQueryFragments(String queryString) {
         Query query = QueryFactory.create(prefixes + queryString);
         QueryExecution qexec = QueryExecutionFactory.create(query, linkedDataModel);
         //QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
 
         return qexec.execSelect();
-    }
+    }*/
 
     public ResultSet executeQuery(String queryString) {
 
@@ -98,7 +95,5 @@ public class QueryWrapper {
             return false;
         }
         return predicates.hasNext();
-
     }
-
 }

@@ -36,7 +36,7 @@ object ExtractionFlows extends LazyLogging {
     .via(storeMembershipStatementsInFile(config.getString("io.rdfMembershipOutput")))
     .via(getTypesMap())
     .via(filterEmptyTypes())
-//    .via(checkTypeSpreading())
+    .via(checkTypeSpreading())
     .via(computeTfIdf())
     .via(computeTextEvidence())
     .via(fuseResults())
