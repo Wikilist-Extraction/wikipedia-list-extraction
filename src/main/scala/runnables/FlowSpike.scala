@@ -61,8 +61,8 @@ object FlowSpike extends LazyLogging {
 
     resFuture onFailure {
       case e => {
-        logger.error(e.toString)
-        logger.error(e.getCause.toString)
+//        logger.error(e.toString)
+//        logger.error(e.getCause.toString)
         e.printStackTrace()
       }
     }

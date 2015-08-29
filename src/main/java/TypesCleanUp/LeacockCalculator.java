@@ -15,7 +15,14 @@ import java.util.*;
 
 public class LeacockCalculator {
     private  Map<String, OntologyNode> nodes = new HashMap<>();
-    private  QueryWrapper wrapper = new QueryWrapper();
+//    private  QueryWrapper wrapper = new QueryWrapper();
+
+    public OntologyNode getNode(String name) {
+        if (!nodes.containsKey(name))
+            throw new IllegalArgumentException();
+
+        return nodes.get(name);
+    }
 
 
 
@@ -28,12 +35,12 @@ public class LeacockCalculator {
         System.out.println(calc.calculateLeacockChodorow(s, s2));
     }
 
-    public void buildOntologyTree() {
-        OntologyNode node = new OntologyNode("owl:Thing");
-        PrintWriter writer = null;
-
-        buildSubnodes(node);
-    }
+//    public void buildOntologyTree() {
+//        OntologyNode node = new OntologyNode("owl:Thing");
+//        PrintWriter writer = null;
+//
+//        buildSubnodes(node);
+//    }
 
     public void buildOntologyTreeFromFile() {
         Path path = Paths.get("ontology-seperated.txt");
@@ -75,18 +82,24 @@ public class LeacockCalculator {
 
     public Boolean areTypesSpreaded(Map<String, Integer> typesMap) {
         List<String> types = new ArrayList<>(typesMap.keySet());
-        LeacockCalculator calc = new LeacockCalculator();
         Integer relevanceThreshold = findRelevanceThreshold(typesMap);
         final double leacockThreshold = -2.5;
         for (int i = 0; i < types.size() - 1; i++) {
             for (int j = i + 1; j < types.size(); j++) {
                 String firstType = types.get(i);
                 String secondType = types.get(j);
+                if (!(firstType.contains("dbpedia") && secondType.contains("dbpedia"))) {
+                    continue;
+                }
                 if (typesMap.get(firstType) < relevanceThreshold || typesMap.get(secondType) < relevanceThreshold) {
                     continue;
                 }
-                if (calc.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
-                    return true;
+                try {
+                    if (this.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
+                        return true;
+                    }
+                } catch (IllegalArgumentException e) {
+                    continue;
                 }
             }
         }
@@ -98,41 +111,41 @@ public class LeacockCalculator {
         return maximum / 5;
     }
 
-    private void buildSubnodes(OntologyNode node) {
-        List<OntologyNode> children = getSubclasses(node.getResource());
-        nodes.put(node.getResource(), node);
-        node.setChildren(children);
-        for (OntologyNode child : children) {
-            child.setParent(node);
-            buildSubnodes(child);
-        }
-    }
-
-    private List<OntologyNode> getSubclasses(String resource) {
-        String queryString;
-        if (resource.contains("http")) {
-            String escapedResource = "<" + resource + ">";
-            queryString = "SELECT ?subClass WHERE { ?subClass rdfs:subClassOf " + escapedResource + ". }";
-        } else {
-            queryString = "SELECT ?subClass WHERE { ?subClass rdfs:subClassOf " + resource + ". }";
-        }
-
-        List<OntologyNode> subClasses = new ArrayList<>();
-        ResultSet rs = wrapper.executeQueryFragments(queryString);
-        //ResultSet rs = wrapper.executeQuery(queryString);
-
-        Set<String> addedSubclasses = new HashSet<>();
-        while (rs.hasNext()) {
-            QuerySolution solution = rs.next();
-            String res = solution.getResource("subClass").toString();
-            if (!addedSubclasses.contains(res)) {
-                OntologyNode node = new OntologyNode(res);
-                addedSubclasses.add(res);
-                subClasses.add(node);
-            }
-        }
-        return subClasses;
-    }
+//    private void buildSubnodes(OntologyNode node) {
+//        List<OntologyNode> children = getSubclasses(node.getResource());
+//        nodes.put(node.getResource(), node);
+//        node.setChildren(children);
+//        for (OntologyNode child : children) {
+//            child.setParent(node);
+//            buildSubnodes(child);
+//        }
+//    }
+//
+//    private List<OntologyNode> getSubclasses(String resource) {
+//        String queryString;
+//        if (resource.contains("http")) {
+//            String escapedResource = "<" + resource + ">";
+//            queryString = "SELECT ?subClass WHERE { ?subClass rdfs:subClassOf " + escapedResource + ". }";
+//        } else {
+//            queryString = "SELECT ?subClass WHERE { ?subClass rdfs:subClassOf " + resource + ". }";
+//        }
+//
+//        List<OntologyNode> subClasses = new ArrayList<>();
+//        ResultSet rs = wrapper.executeQueryFragments(queryString);
+//        //ResultSet rs = wrapper.executeQuery(queryString);
+//
+//        Set<String> addedSubclasses = new HashSet<>();
+//        while (rs.hasNext()) {
+//            QuerySolution solution = rs.next();
+//            String res = solution.getResource("subClass").toString();
+//            if (!addedSubclasses.contains(res)) {
+//                OntologyNode node = new OntologyNode(res);
+//                addedSubclasses.add(res);
+//                subClasses.add(node);
+//            }
+//        }
+//        return subClasses;
+//    }
 
 
     public Double calculateLeacockChodorow(String firstResource, String secondResource) {
@@ -143,11 +156,11 @@ public class LeacockCalculator {
         return (- Math.log(length / 2 * maxDepth));
     }
 
-    private int  getDepth(OntologyNode node) {
+    private int getDepth(OntologyNode node) {
         return getAncestors(node).size();
     }
 
-    private int  getDistance(OntologyNode first, OntologyNode second) {
+    private int getDistance(OntologyNode first, OntologyNode second) {
         List<String> firstAncestors = getAncestors(first);
         List<String> secondAncestors = getAncestors(second);
         for (String ancestor : firstAncestors) {

@@ -28,8 +28,8 @@ public class QueryWrapper {
         Dataset propertyDataset = TDBFactory.createDataset(titleTdbDirectory);
         model = propertyDataset.getDefaultModel();
 
-        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph("http://fragments.dbpedia.org/2014/en");
-        linkedDataModel = ModelFactory.createModelForGraph(ldfg);
+//        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph("http://fragments.dbpedia.org/2014/en");
+//        linkedDataModel = ModelFactory.createModelForGraph(ldfg);
     }
 
     public ResultSet executeQueryFragments(String queryString) {
