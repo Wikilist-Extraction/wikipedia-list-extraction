@@ -15,7 +15,7 @@ import java.util.*;
 
 public class LeacockCalculator {
     private  Map<String, OntologyNode> nodes = new HashMap<>();
-    private  QueryWrapper wrapper = new QueryWrapper();
+    //private  QueryWrapper wrapper = new QueryWrapper();
 
 
 
@@ -28,12 +28,14 @@ public class LeacockCalculator {
         System.out.println(calc.calculateLeacockChodorow(s, s2));
     }
 
+    /*
     public void buildOntologyTree() {
         OntologyNode node = new OntologyNode("owl:Thing");
         PrintWriter writer = null;
 
         buildSubnodes(node);
     }
+    */
 
     public void buildOntologyTreeFromFile() {
         Path path = Paths.get("ontology-seperated.txt");
@@ -75,6 +77,7 @@ public class LeacockCalculator {
 
     public Boolean areTypesSpreaded(Map<String, Integer> typesMap) {
         List<String> types = new ArrayList<>(typesMap.keySet());
+        System.out.println("I get called");
         LeacockCalculator calc = new LeacockCalculator();
         Integer relevanceThreshold = findRelevanceThreshold(typesMap);
         final double leacockThreshold = -2.5;
@@ -85,9 +88,14 @@ public class LeacockCalculator {
                 if (typesMap.get(firstType) < relevanceThreshold || typesMap.get(secondType) < relevanceThreshold) {
                     continue;
                 }
-                if (calc.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
-                    return true;
+                try {
+                    if (calc.calculateLeacockChodorow(firstType, secondType) < leacockThreshold) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    System.out.println("could not calculate Leacock distance from: " + firstType + " and " + secondType);
                 }
+
             }
         }
         return false;
@@ -97,7 +105,7 @@ public class LeacockCalculator {
         int maximum = Collections.max(typesMap.values());
         return maximum / 5;
     }
-
+    /*
     private void buildSubnodes(OntologyNode node) {
         List<OntologyNode> children = getSubclasses(node.getResource());
         nodes.put(node.getResource(), node);
@@ -107,6 +115,7 @@ public class LeacockCalculator {
             buildSubnodes(child);
         }
     }
+
 
     private List<OntologyNode> getSubclasses(String resource) {
         String queryString;
@@ -133,6 +142,7 @@ public class LeacockCalculator {
         }
         return subClasses;
     }
+    */
 
 
     public Double calculateLeacockChodorow(String firstResource, String secondResource) {
