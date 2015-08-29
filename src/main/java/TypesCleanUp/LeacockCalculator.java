@@ -29,8 +29,13 @@ public class LeacockCalculator {
         LeacockCalculator calc = new LeacockCalculator();
         //calc.buildOntologyTree();
         calc.buildOntologyTreeFromFile();
-        String s =  "http://dbpedia.org/ontology/Activity";
+        String s =  "http://dbpedia.org/ontology/NaturalPlace";
         String s2 = "http://dbpedia.org/ontology/Person";
+        Map<String, Integer> test = new HashMap<>();
+        test.put("http://dbpedia.org/ontology/Activity", 13);
+        test.put("http://dbpedia.org/ontology/Person", 8);
+        test.put("http://dbpedia.org/ontology/HorseRiding", 11);
+
         System.out.println(calc.calculateLeacockChodorow(s, s2));
     }
 
@@ -60,6 +65,7 @@ public class LeacockCalculator {
             String[] splittedStat = stat.split("\\$");
             String firstNode = splittedStat[0];
             String secondNode = splittedStat[1];
+
             OntologyNode parent;
             if (!allResources.contains(firstNode)) {
                 allResources.add(firstNode);
@@ -75,8 +81,9 @@ public class LeacockCalculator {
                 child = new OntologyNode(secondNode);
                 nodes.put(child.getResource(), child);
             } else {
-                child = nodes.get(firstNode);
+                child = nodes.get(secondNode);
             }
+            assert (!Objects.equals(parent.getResource(), child.getResource()));
             parent.addChild(child);
             child.setParent(parent);
         }
