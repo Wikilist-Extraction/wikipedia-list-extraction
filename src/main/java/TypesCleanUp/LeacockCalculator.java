@@ -184,7 +184,7 @@ public class LeacockCalculator {
         OntologyNode second = nodes.get(secondResource);
         Integer length = getDistance(first, second);
         Integer maxDepth = Math.max(getDepth(first), getDepth(second));
-        return (- Math.log((double) length / 2 * maxDepth));
+        return (- Math.log((double) length / (2 * maxDepth)));
     }
 
     private int getDepth(OntologyNode node) {
