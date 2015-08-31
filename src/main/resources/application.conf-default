@@ -6,8 +6,8 @@ io {
 }
 
 leacock {
-  forEachThreshold = -2.5
-  meanThreshold = -2
+  forEachThreshold = 0.8
+  meanThreshold = 1
   useMeanThreshold = false
 }
 
