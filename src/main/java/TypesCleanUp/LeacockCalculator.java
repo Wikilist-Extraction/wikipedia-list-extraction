@@ -113,7 +113,6 @@ public class LeacockCalculator {
                 }
                 try {
                     double dist = this.calculateLeacockChodorow(firstType, secondType);
-                    System.out.println(dist);
                     sum += dist;
                     count++;
                     if (!useMeanThreshold && dist < leacockThreshold) {
@@ -128,7 +127,7 @@ public class LeacockCalculator {
 
         if (useMeanThreshold) {
             double avgDist = sum / count;
-            System.out.println(sum + " count: " + count);
+//            System.out.println("avgDist: " + avgDist);
             return avgDist < meanThreshold;
         }
 

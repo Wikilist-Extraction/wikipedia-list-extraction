@@ -28,8 +28,11 @@ object ExtractionFlows extends LazyLogging {
   val rdfWriter = new RdfWriter()
   val parallelCount = 8
 
-//  val filterStrategy = new ThresholdFilterStrategy(config.getDouble("filtering.thresholds.final"))
-  val filterStrategy = new ScoreDropFilterStrategy
+  val filterStrategy = config.getString("filtering.strategy") match {
+    case "scoreDrop" => new ScoreDropFilterStrategy
+    case "threshold" => new ThresholdFilterStrategy(config.getDouble("filtering.thresholds.final"))
+    case _ => throw new NoSuchElementException("Not existing filter strategy in config set")
+  }
 
   def completeFlow()(implicit materializer: Materializer) = Flow[Article]
     .via(convertArticle())

@@ -8,7 +8,7 @@ io {
 leacock {
   forEachThreshold = -2.5
   meanThreshold = -2
-  useMeanThreshold = true
+  useMeanThreshold = false
 }
 
 fusing {
@@ -19,7 +19,9 @@ fusing {
 }
 
 filtering {
+  strategy = "threshold"
   thresholds {
     final = 0.7
+    allTypesCorrect = 0
   }
 }
