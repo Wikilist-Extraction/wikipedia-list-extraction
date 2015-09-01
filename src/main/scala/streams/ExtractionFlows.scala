@@ -11,6 +11,7 @@ import akka.stream.scaladsl.{Sink, FlowGraph, Flow, Broadcast}
 import dataFormats.{WikiListResult, WikiListScores, WikiListPage}
 import dump.ListArticleParser
 import extractors.ListMemberTypeExtractor
+import filtering.strategies.{ThresholdFilterStrategy, ScoreDropFilterStrategy}
 import it.cnr.isti.hpc.wikipedia.article.Article
 import ratings.{RDFTableWrapper, TfIdfRating, TextEvidenceRating}
 import filtering._
@@ -144,7 +145,6 @@ object ExtractionFlows extends LazyLogging {
 
       if (leacock.areTypesSpreaded(r)) {
         logger.info(s"Filtered out due to type spreading: ${result.page.title}")
-        println(s"Filtered out due to type spreading: ${result.page.title}")
         List()
       }
       else

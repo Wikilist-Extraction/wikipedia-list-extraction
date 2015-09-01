@@ -10,6 +10,7 @@ import it.cnr.isti.hpc.wikipedia.article.Article
 
 import implicits.ConversionImplicits._
 import streams.{RdfWriter, ExtractionFlows, JsonWriter}
+import util.Config._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
@@ -20,7 +21,7 @@ import scala.language.postfixOps
 object CreateTypesList extends LazyLogging {
   def main(args: Array[String]) {
 
-    val filename = args(0)
+    val filename = config.getString("io.inputFile")
     val decider: Supervision.Decider = {
       case _ => Supervision.Resume
     }
@@ -45,7 +46,7 @@ object CreateTypesList extends LazyLogging {
 
     resultFuture foreach { res =>
       val json = JsonWriter.createTfIdfJson(res)
-      JsonWriter.write(json, "results/random-1000-tfidf.json")
+      JsonWriter.write(json, config.getString("io.jsonOutput-tfidf"))
       materializer.shutdown()
       actorSys.shutdown()
     }

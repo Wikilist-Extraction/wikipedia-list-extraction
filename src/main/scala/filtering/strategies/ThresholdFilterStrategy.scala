@@ -1,6 +1,6 @@
-package filtering
+package filtering.strategies
 
-import dataFormats.{WikiFusedResult, WikiListScores}
+import dataFormats.WikiFusedResult
 
 /**
  * Created by nico on 28/08/15.

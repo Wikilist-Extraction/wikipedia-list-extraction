@@ -1,6 +1,7 @@
 io {
   inputFile = "data/input.json"
-  jsonOutput = "results/output.json"
+  jsonOutput-results = "results/output-results.json"
+  jsonOutput-tfidf = "results/output-tfidf.json"
   rdfMembershipOutput = "results/membership.ttl"
   rdfTypesOutput = "results/types.ttl"
 }
@@ -13,13 +14,13 @@ leacock {
 
 fusing {
   weights {
-    tfIdf = 1
-    textEvidence = 1
+    tfIdf = 85
+    textEvidence = 15
   }
 }
 
 filtering {
-  strategy = "threshold"
+  strategy = "scoreDrop"
   thresholds {
     final = 0.7
     allTypesCorrect = 0

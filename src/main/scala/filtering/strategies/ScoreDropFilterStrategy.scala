@@ -1,4 +1,4 @@
-package filtering
+package filtering.strategies
 
 import dataFormats.WikiFusedResult
 

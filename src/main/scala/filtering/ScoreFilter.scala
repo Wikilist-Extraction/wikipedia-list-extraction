@@ -1,6 +1,7 @@
 package filtering
 
 import dataFormats.{WikiFusedResult, WikiListResult}
+import filtering.strategies.ScoreFilterStrategy
 
 /**
  * Created by nico on 28/08/15.

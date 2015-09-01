@@ -1,9 +1,8 @@
-package filtering
+package filtering.strategies
 
-import dataFormats.{WikiFusedResult, WikiListScores}
+import dataFormats.WikiFusedResult
+
 import scala.util.Random
-
-import scala.annotation.tailrec
 
 /**
  * Created by nico on 28/08/15.

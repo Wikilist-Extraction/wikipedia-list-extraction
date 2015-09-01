@@ -22,7 +22,7 @@ import util.Config._
 /**
  * Created by nico on 05/07/15.
  */
-object FlowSpike extends LazyLogging {
+object GenerateTypes extends LazyLogging {
   def main(args: Array[String]) {
 
 
@@ -67,10 +67,14 @@ object FlowSpike extends LazyLogging {
       }
     }
 
+    timeFuture("overallTime: ") {
+      resFuture
+    }
+
     resFuture foreach { res =>
       res foreach (fusedResults => rdfWriter.addTypeStatementsFor(fusedResults, config.getString("io.rdfTypesOutput")))
       val json = JsonWriter.createResultJson(res)
-      JsonWriter.write(json, config.getString("io.jsonOutput"))
+      JsonWriter.write(json, config.getString("io.jsonOutput-results"))
       materializer.shutdown()
       actorSys.shutdown()
     }
